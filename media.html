@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#030617">
+    <title>Медиаплеер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.theme-dark {
+            --bg-color: #000000;
+            --text-primary: #ffffff;
+            --glass-bg: rgba(30, 30, 35, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --shadow: rgba(0, 0, 0, 0.6);
+            --accent: #7b2ffc;
+            --time-bg: rgba(0, 0, 0, 0.6);
+            --border-color: #7b2ffc;
+            --track-bg: rgba(255, 255, 255, 0.1);
+            --track-fill: #7b2ffc;
+            --play-bg: #7b2ffc;
+        }
+
+        body.theme-light {
+            --bg-color: #f5f5f7;
+            --text-primary: #1c1c1e;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.15);
+            --shadow: rgba(0, 0, 0, 0.1);
+            --accent: #7b2ffc;
+            --time-bg: rgba(0, 0, 0, 0.08);
+            --border-color: #7b2ffc;
+            --track-bg: rgba(0, 0, 0, 0.1);
+            --track-fill: #7b2ffc;
+            --play-bg: #7b2ffc;
+        }
+
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes borderSpin {
+            0% { --angle: 0deg; }
+            100% { --angle: 360deg; }
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 16px 16px 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .close-red {
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            width: 14px;
+            height: 14px;
+            background: #ff5f5a;
+            border-radius: 50%;
+            z-index: 1000;
+            cursor: pointer;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            padding: 20px 0 12px 0;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #7b2ffc, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header .sub {
+            font-size: 12px;
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+
+        .playlist {
+            flex: 1;
+            overflow-y: auto;
+            margin: 8px 0 12px 0;
+            padding: 4px 0;
+        }
+
+        .playlist::-webkit-scrollbar {
+            width: 3px;
+        }
+        .playlist::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .track-item {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .track-item::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 14px;
+            padding: 1px;
+            background: conic-gradient(
+                from var(--angle, 0deg),
+                transparent 0%,
+                #7b2ffc 20%,
+                #a855f7 40%,
+                #c084fc 60%,
+                #a855f7 80%,
+                transparent 100%
+            );
+            background-size: 300% 300%;
+            animation: borderSpin 6s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .track-item.active::before {
+            opacity: 1;
+        }
+
+        .track-item.active {
+            background: var(--glass-bg);
+            border-color: var(--border-color);
+        }
+
+        .track-item:active {
+            transform: scale(0.98);
+            opacity: 0.7;
+        }
+
+        .track-item .icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .track-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-item .name {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-item .duration {
+            font-size: 11px;
+            opacity: 0.5;
+        }
+
+        .track-item .play-indicator {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .player {
+            flex-shrink: 0;
+            padding: 3px;
+            border-radius: 24px;
+            background: conic-gradient(
+                from var(--angle, 0deg),
+                transparent 0%,
+                #7b2ffc 15%,
+                #a855f7 30%,
+                #c084fc 45%,
+                #a855f7 60%,
+                #7b2ffc 75%,
+                transparent 100%
+            );
+            background-size: 300% 300%;
+            animation: borderSpin 8s linear infinite;
+        }
+
+        .player-inner {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 22px;
+            padding: 16px 20px;
+        }
+
+        .current-track {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .current-track .name {
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .current-track .artist {
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0 12px 0;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--track-bg);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--track-fill);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .progress-time {
+            font-size: 11px;
+            opacity: 0.6;
+            min-width: 40px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .controls .btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 6px;
+            transition: opacity 0.15s;
+            opacity: 0.7;
+        }
+
+        .controls .btn:active {
+            opacity: 0.4;
+            transform: scale(0.92);
+        }
+
+        .controls .btn.play-btn {
+            font-size: 28px;
+            opacity: 1;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--play-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            position: relative;
+            transform: rotate(-90deg);
+        }
+
+        .controls .btn.play-btn:active {
+            transform: rotate(-90deg) scale(0.92);
+        }
+
+        .controls .btn.play-btn.paused {
+            background: #ff6b6b;
+            transform: rotate(0deg);
+        }
+
+        .controls .btn.play-btn.paused:active {
+            transform: rotate(0deg) scale(0.92);
+        }
+
+        .volume-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .volume-row .vol-icon {
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .volume-row input[type="range"] {
+            flex: 1;
+            height: 3px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--track-bg);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .volume-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .volume-row input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+        }
+
+        .volume-row .vol-val {
+            font-size: 11px;
+            opacity: 0.6;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        .copyright {
+            text-align: center;
+            font-size: 10px;
+            color: rgba(128,128,128,0.4);
+            margin-top: 8px;
+            pointer-events: none;
+            flex-shrink: 0;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .loading {
+            text-align: center;
+            opacity: 0.5;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 8px 10px 10px 10px; }
+            .header h1 { font-size: 20px; }
+            .track-item { padding: 10px 12px; }
+            .track-item .name { font-size: 13px; }
+            .player-inner { padding: 12px 14px; }
+            .controls .btn { font-size: 20px; }
+            .controls .btn.play-btn { font-size: 24px; width: 48px; height: 48px; }
+            .current-track .name { font-size: 14px; }
+            .copyright { font-size: 8px; }
+        }
+
+        @media (max-height: 600px) {
+            .header { padding: 8px 0 4px 0; }
+            .header h1 { font-size: 18px; }
+            .playlist { margin: 4px 0 8px 0; }
+            .track-item { padding: 6px 10px; }
+            .track-item .name { font-size: 12px; }
+            .player-inner { padding: 10px 12px; }
+            .controls .btn { font-size: 18px; }
+            .controls .btn.play-btn { font-size: 20px; width: 40px; height: 40px; }
+            .current-track .name { font-size: 13px; }
+            .volume-row { margin-top: 6px; padding-top: 6px; }
+            .progress-container { margin: 4px 0 8px 0; }
+            .copyright { font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="close-red" id="closeBtn"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Медиаплеер</h1>
+            <div class="sub" id="trackCount">Загрузка музыки...</div>
+        </div>
+
+        <div class="playlist" id="playlist">
+            <div class="loading">🎵 Загрузка треков...</div>
+        </div>
+
+        <div class="player">
+            <div class="player-inner">
+                <div class="current-track">
+                    <div class="name" id="currentTrackName">Выберите трек</div>
+                    <div class="artist" id="currentTrackArtist">Медиаплеер</div>
+                </div>
+
+                <div class="progress-container">
+                    <span class="progress-time" id="currentTime">0:00</span>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-time" id="totalTime">0:00</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="prevBtn">⏮</button>
+                    <button class="btn play-btn" id="playBtn">🚀</button>
+                    <button class="btn" id="nextBtn">⏭</button>
+                </div>
+
+                <div class="volume-row">
+                    <span class="vol-icon">🔊</span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="80">
+                    <span class="vol-val" id="volumeVal">80%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">© ErmakArtekovec</div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  МЕДИАПЛЕЕР — АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ИЗ ПАПКИ music/
+        //  РАБОТАЕТ В CORDOVA БЕЗ ДИАЛОГОВ
+        // ============================================================
+
+        let audio = null;
+        let playlist = [];
+        let currentIndex = -1;
+        let isPlaying = false;
+        let isDragging = false;
+        let volume = 80;
+
+        const playlistEl = document.getElementById('playlist');
+        const trackCountEl = document.getElementById('trackCount');
+        const currentTrackName = document.getElementById('currentTrackName');
+        const currentTrackArtist = document.getElementById('currentTrackArtist');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const progressBar = document.getElementById('progressBar');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeVal = document.getElementById('volumeVal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // ============================================================
+        //  ТЕМА
+        // ============================================================
+        function loadTheme() {
+            const saved = localStorage.getItem('ermakx_settings');
+            let theme = 'dark';
+            if (saved) {
+                try {
+                    const s = JSON.parse(saved);
+                    theme = s.theme || 'dark';
+                } catch(e) {}
+            }
+            let resolved = theme === 'system' 
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') 
+                : theme;
+            document.body.classList.remove('theme-light', 'theme-dark');
+            document.body.classList.add(`theme-${resolved}`);
+        }
+        loadTheme();
+
+        // ============================================================
+        //  ЗАГРУЗКА МУЗЫКИ ИЗ ПАПКИ music/ (CORDOVA)
+        // ============================================================
+        function loadMusic() {
+            // Проверяем, что мы в Cordova
+            if (!window.cordova) {
+                // Если не Cordova — пробуем загрузить через fetch
+                loadMusicFallback();
+                return;
+            }
+
+            // Ждём deviceready
+            if (typeof cordova === 'undefined') {
+                document.addEventListener('deviceready', loadMusicCordova);
+            } else {
+                loadMusicCordova();
+            }
+        }
+
+        function loadMusicCordova() {
+            // Путь к папке music в приложении
+            const musicPath = cordova.file.applicationDirectory + 'www/music/';
+            
+            window.resolveLocalFileSystemURL(musicPath, function(dirEntry) {
+                const reader = dirEntry.createReader();
+                let allFiles = [];
+                const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a', 'wma'];
+
+                function readEntries() {
+                    reader.readEntries(function(entries) {
+                        if (entries.length > 0) {
+                            const audioFiles = entries.filter(function(entry) {
+                                if (entry.isFile) {
+                                    const ext = entry.name.split('.').pop().toLowerCase();
+                                    return audioExtensions.includes(ext);
+                                }
+                                return false;
+                            });
+                            allFiles = allFiles.concat(audioFiles);
+                            readEntries();
+                        } else {
+                            // Все файлы прочитаны
+                            if (allFiles.length === 0) {
+                                trackCountEl.textContent = '🎵 Нет треков';
+                                playlistEl.innerHTML = `
+                                    <div style="text-align:center; opacity:0.4; padding:40px 20px;">
+                                        <div style="font-size:48px; margin-bottom:12px;">🎵</div>
+                                        <div style="font-size:14px;">Нет аудиофайлов в папке</div>
+                                        <div style="font-size:12px; opacity:0.6;">assets/www/music/</div>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            // Преобразуем в список для плеера
+                            playlist = allFiles.map(function(file) {
+                                return {
+                                    name: file.name,
+                                    entry: file,
+                                    path: file.nativeURL || file.toURL()
+                                };
+                            });
+
+                            renderPlaylist();
+                            trackCountEl.textContent = `🎵 ${playlist.length} треков`;
+                        }
+                    }, function(error) {
+                        console.error('Ошибка чтения:', error);
+                        loadMusicFallback();
+                    });
+                }
+                readEntries();
+            }, function(error) {
+                console.error('Папка music не найдена:', error);
+                loadMusicFallback();
+            });
+        }
+
+        // ============================================================
+        //  ЗАГРУЗКА МУЗЫКИ (FALLBACK ДЛЯ БРАУЗЕРА)
+        // ============================================================
+        function loadMusicFallback() {
+            // Для браузера пробуем загрузить через fetch
+            // Пытаемся получить список файлов через заранее созданный список
+            // Или просто показываем сообщение
+            
+            // Простой способ: пробуем загрузить файлы по очереди
+            const testFiles = [
+                'music/track1.mp3',
+                'music/track2.mp3',
+                'music/track3.mp3'
+            ];
+
+            let found = [];
+            let checked = 0;
+
+            testFiles.forEach(function(path) {
+                fetch(path, { method: 'HEAD' })
+                    .then(function(res) {
+                        if (res.ok) {
+                            const name = path.split('/').pop();
+                            found.push({ name: name, path: path });
+                        }
+                        checked++;
+                        if (checked === testFiles.length) {
+                            finishFallback(found);
+                        }
+                    })
+                    .catch(function() {
+                        checked++;
+                        if (checked === testFiles.length) {
+                            finishFallback(found);
+                        }
+                    });
+            });
+
+            if (testFiles.length === 0) {
+                finishFallback([]);
+            }
+        }
+
+        function finishFallback(found) {
+            if (found.length === 0) {
+                trackCountEl.textContent = '🎵 Нет треков';
+                playlistEl.innerHTML = `
+                    <div style="text-align:center; opacity:0.4; padding:40px 20px;">
+                        <div style="font-size:48px; margin-bottom:12px;">🎵</div>
+                        <div style="font-size:14px;">Нет аудиофайлов в папке</div>
+                        <div style="font-size:12px; opacity:0.6;">assets/www/music/</div>
+                    </div>
+                `;
+                return;
+            }
+
+            playlist = found.map(function(t) {
+                return { name: t.name, path: t.path };
+            });
+
+            renderPlaylist();
+            trackCountEl.textContent = `🎵 ${playlist.length} треков`;
+        }
+
+        // ============================================================
+        //  ОТОБРАЖЕНИЕ ПЛЕЙЛИСТА
+        // ============================================================
+        function renderPlaylist() {
+            playlistEl.innerHTML = '';
+
+            playlist.forEach(function(track, index) {
+                const item = document.createElement('div');
+                item.className = 'track-item' + (index === currentIndex ? ' active' : '');
+                
+                const icon = document.createElement('span');
+                icon.className = 'icon';
+                icon.textContent = index === currentIndex && isPlaying ? '▶' : '🎵';
+                
+                const info = document.createElement('div');
+                info.className = 'info';
+                
+                const name = document.createElement('div');
+                name.className = 'name';
+                const fileName = track.name || 'Без названия';
+                name.textContent = fileName.replace(/\.[^.]+$/, '');
+                
+                const duration = document.createElement('div');
+                duration.className = 'duration';
+                duration.textContent = track.duration || '--:--';
+                
+                info.appendChild(name);
+                info.appendChild(duration);
+                
+                const indicator = document.createElement('span');
+                indicator.className = 'play-indicator';
+                indicator.textContent = index === currentIndex && isPlaying ? '🔊' : '';
+                
+                item.appendChild(icon);
+                item.appendChild(info);
+                item.appendChild(indicator);
+                
+                item.onclick = function() {
+                    playTrack(index);
+                };
+                
+                playlistEl.appendChild(item);
+            });
+        }
+
+        // ============================================================
+        //  ВОСПРОИЗВЕДЕНИЕ
+        // ============================================================
+        function playTrack(index) {
+            if (index < 0 || index >= playlist.length) return;
+
+            const track = playlist[index];
+            currentIndex = index;
+
+            renderPlaylist();
+            const fileName = track.name || 'Без названия';
+            currentTrackName.textContent = fileName.replace(/\.[^.]+$/, '');
+            currentTrackArtist.textContent = 'Медиаплеер';
+
+            if (audio) {
+                audio.pause();
+                audio = null;
+            }
+
+            // Используем путь к файлу
+            const src = track.path || track.entry?.nativeURL || 'music/' + track.name;
+            audio = new Audio(src);
+            audio.volume = volume / 100;
+
+            audio.addEventListener('loadedmetadata', function() {
+                totalTimeEl.textContent = formatTime(audio.duration);
+                playlist[index].duration = formatTime(audio.duration);
+                renderPlaylist();
+            });
+
+            audio.addEventListener('timeupdate', function() {
+                if (!isDragging) {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    progressFill.style.width = progress + '%';
+                    currentTimeEl.textContent = formatTime(audio.currentTime);
+                }
+            });
+
+            audio.addEventListener('ended', function() {
+                nextTrack();
+            });
+
+            audio.addEventListener('error', function(e) {
+                console.error('Ошибка воспроизведения:', e);
+                nextTrack();
+            });
+
+            audio.play().then(function() {
+                isPlaying = true;
+                playBtn.textContent = '🚀';
+                playBtn.classList.remove('paused');
+                renderPlaylist();
+            }).catch(function(e) {
+                console.error('Ошибка воспроизведения:', e);
+            });
+        }
+
+        // ============================================================
+        //  УПРАВЛЕНИЕ
+        // ============================================================
+        function togglePlay() {
+            if (!audio) {
+                if (playlist.length > 0) {
+                    playTrack(0);
+                }
+                return;
+            }
+
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playBtn.textContent = '🚀';
+                playBtn.classList.add('paused');
+                renderPlaylist();
+            } else {
+                audio.play().catch(function(e) {
+                    console.error('Ошибка воспроизведения:', e);
+                });
+                isPlaying = true;
+                playBtn.textContent = '🚀';
+                playBtn.classList.remove('paused');
+                renderPlaylist();
+            }
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            const next = (currentIndex + 1) % playlist.length;
+            playTrack(next);
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            const prev = (currentIndex - 1 + playlist.length) % playlist.length;
+            playTrack(prev);
+        }
+
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        // ============================================================
+        //  ПРОГРЕСС-БАР
+        // ============================================================
+        progressBar.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            updateProgress(e);
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                updateProgress(e);
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging && audio) {
+                isDragging = false;
+                const rect = progressBar.getBoundingClientRect();
+                const percent = Math.min(1, Math.max(0, (rect.width > 0) ? 1 : 0));
+                audio.currentTime = percent * audio.duration;
+            }
+        });
+
+        progressBar.addEventListener('touchstart', function(e) {
+            isDragging = true;
+            updateProgressTouch(e);
+        });
+
+        progressBar.addEventListener('touchmove', function(e) {
+            if (isDragging) {
+                e.preventDefault();
+                updateProgressTouch(e);
+            }
+        });
+
+        progressBar.addEventListener('touchend', function() {
+            if (isDragging && audio) {
+                isDragging = false;
+                const rect = progressBar.getBoundingClientRect();
+                const percent = Math.min(1, Math.max(0, (rect.width > 0) ? 1 : 0));
+                audio.currentTime = percent * audio.duration;
+            }
+        });
+
+        function updateProgress(e) {
+            if (!audio) return;
+            const rect = progressBar.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = Math.min(1, Math.max(0, x / rect.width));
+            progressFill.style.width = (percent * 100) + '%';
+            currentTimeEl.textContent = formatTime(percent * audio.duration);
+        }
+
+        function updateProgressTouch(e) {
+            if (!audio) return;
+            const touch = e.touches[0];
+            const rect = progressBar.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const percent = Math.min(1, Math.max(0, x / rect.width));
+            progressFill.style.width = (percent * 100) + '%';
+            currentTimeEl.textContent = formatTime(percent * audio.duration);
+        }
+
+        // ============================================================
+        //  ГРОМКОСТЬ
+        // ============================================================
+        volumeSlider.addEventListener('input', function() {
+            volume = parseInt(this.value);
+            volumeVal.textContent = volume + '%';
+            if (audio) {
+                audio.volume = volume / 100;
+            }
+            localStorage.setItem('ermakx_volume', volume);
+        });
+
+        const savedVolume = localStorage.getItem('ermakx_volume');
+        if (savedVolume) {
+            volume = parseInt(savedVolume);
+            volumeSlider.value = volume;
+            volumeVal.textContent = volume + '%';
+        }
+
+        // ============================================================
+        //  КНОПКИ
+        // ============================================================
+        playBtn.addEventListener('click', togglePlay);
+        nextBtn.addEventListener('click', nextTrack);
+        prevBtn.addEventListener('click', prevTrack);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            switch(e.key) {
+                case ' ': e.preventDefault(); togglePlay(); break;
+                case 'ArrowRight': nextTrack(); break;
+                case 'ArrowLeft': prevTrack(); break;
+            }
+        });
+
+        closeBtn.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+
+        // ============================================================
+        //  ЗАПУСК
+        // ============================================================
+        // Ждём загрузку Cordova
+        if (window.cordova) {
+            document.addEventListener('deviceready', loadMusic);
+        } else {
+            loadMusic();
+        }
+    </script>
+</body>
+</html>
