@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание файлов в Яндекс.Диске</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        textarea {
+            height: 180px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
+        .btn-danger { background: #fc8181; color: white; }
+        .btn-danger:hover { background: #f56565; }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #dd6b20; }
+        .btn-secondary { background: #a0aec0; color: white; }
+        .btn-secondary:hover { background: #718096; }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .status.success { display: block; background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .status.error { display: block; background: #fed7d7; color: #742a2a; border: 1px solid #feb2b2; }
+        .status.info { display: block; background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; }
+        .token-info {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+        }
+        .token-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .token-input-group input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .path-preview {
+            background: #edf2f7;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+        }
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #4a5568;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .scopes-info {
+            background: #ebf8ff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 1px solid #bee3f8;
+            font-size: 13px;
+        }
+        .scopes-info ul { padding-left: 20px; margin: 5px 0; }
+        .scopes-info li { color: #2c5282; }
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #a0aec0;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Яндекс.Диск <span style="font-size: 14px; color: #718096; font-weight: normal;">загрузчик</span></h1>
+        
+        <div class="scopes-info">
+            <strong>✅ Разрешения:</strong>
+            <ul>
+                <li>📁 Доступ к папке приложения в Яндекс.Диске</li>
+                <li>👤 Информация о пользователе</li>
+            </ul>
+        </div>
+
+        <div class="token-info">
+            <strong>🔑 Client ID:</strong> 834edc54f2be4ea0ae277ac3013d2e91
+            <span class="badge" style="margin-left: 10px;">готово</span>
+        </div>
+
+        <!-- Ввод токена -->
+        <div class="form-group">
+            <label>🔐 OAuth токен</label>
+            <div class="token-input-group">
+                <input type="text" id="tokenInput" placeholder="Вставьте access_token..." style="font-family: monospace; font-size: 13px;">
+                <button id="saveTokenBtn" class="btn btn-success">💾 Сохранить</button>
+                <button id="checkTokenBtn" class="btn btn-warning">🔍 Проверить</button>
+                <button id="clearTokenBtn" class="btn btn-danger">🗑️ Очистить</button>
+            </div>
+            <div style="margin-top: 8px; font-size: 13px;">
+                <a href="https://oauth.yandex.com/authorize?response_type=token&client_id=834edc54f2be4ea0ae277ac3013d2e91" target="_blank" style="color: #667eea; font-weight: 600;">
+                    ➜ Получить токен
+                </a>
+                <span style="color: #718096;">(скопируйте access_token из адресной строки)</span>
+            </div>
+        </div>
+
+        <!-- Статус токена -->
+        <div id="tokenStatus" class="token-info" style="border-left-color: #fc8181;">
+            <span id="tokenMessage">❌ Токен не установлен</span>
+        </div>
+
+        <!-- Создание файла -->
+        <div class="form-group">
+            <label for="filename">📄 Имя файла</label>
+            <input type="text" id="filename" value="test.txt" placeholder="example.txt">
+        </div>
+
+        <div class="form-group">
+            <label for="folderPath">📂 Путь в папке приложения</label>
+            <input type="text" id="folderPath" placeholder="Documents/ или оставьте пустым">
+            <div class="path-preview">
+                📍 <span id="fullPath">app:/test.txt</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="content">✏️ Содержимое</label>
+            <textarea id="content">Привет! Это тестовый файл из GitHub Pages.
+Дата: 2026-06-28
+Работает через Яндекс.Диск API! 🚀</textarea>
+        </div>
+
+        <div class="button-group">
+            <button id="createFileBtn" class="btn btn-primary">📤 Создать файл</button>
+            <button id="listFilesBtn" class="btn btn-secondary">📂 Список файлов</button>
+            <button id="checkDiskBtn" class="btn btn-success">📊 Инфо о диске</button>
+            <span class="loading" id="loader"><span class="spinner"></span> Загрузка...</span>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+        <div class="footer">Работает через Яндекс.Диск API v1</div>
+    </div>
+
+    <script>
+        const CLIENT_ID = '834edc54f2be4ea0ae277ac3013d2e91';
+        
+        // DOM элементы
+        const tokenInput = document.getElementById('tokenInput');
+        const saveTokenBtn = document.getElementById('saveTokenBtn');
+        const checkTokenBtn = document.getElementById('checkTokenBtn');
+        const clearTokenBtn = document.getElementById('clearTokenBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+        const tokenMessage = document.getElementById('tokenMessage');
+        const filenameInput = document.getElementById('filename');
+        const folderPathInput = document.getElementById('folderPath');
+        const contentTextarea = document.getElementById('content');
+        const fullPathSpan = document.getElementById('fullPath');
+        const createBtn = document.getElementById('createFileBtn');
+        const listFilesBtn = document.getElementById('listFilesBtn');
+        const checkDiskBtn = document.getElementById('checkDiskBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        const loader = document.getElementById('loader');
+
+        let accessToken = localStorage.getItem('yandex_token') || null;
+
+        function updateUI() {
+            if (accessToken) {
+                tokenStatus.style.borderLeftColor = '#48bb78';
+                tokenMessage.textContent = `✅ Токен активен (${accessToken.substring(0, 20)}...)`;
+                tokenInput.value = accessToken;
+                createBtn.disabled = false;
+                listFilesBtn.disabled = false;
+                checkDiskBtn.disabled = false;
+            } else {
+                tokenStatus.style.borderLeftColor = '#fc8181';
+                tokenMessage.textContent = '❌ Токен не установлен';
+                tokenInput.value = '';
+                createBtn.disabled = true;
+                listFilesBtn.disabled = true;
+                checkDiskBtn.disabled = true;
+            }
+        }
+
+        function updatePath() {
+            const folder = folderPathInput.value.trim();
+            const filename = filenameInput.value.trim() || 'untitled.txt';
+            const path = folder ? `app:/${folder.replace(/^\/+/, '')}/${filename}` : `app:/${filename}`;
+            fullPathSpan.textContent = path;
+        }
+
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        function setLoading(loading) {
+            loader.style.display = loading ? 'flex' : 'none';
+            createBtn.disabled = loading;
+            listFilesBtn.disabled = loading;
+            checkDiskBtn.disabled = loading;
+        }
+
+        function saveToken() {
+            const token = tokenInput.value.trim();
+            if (!token) { showStatus('⚠️ Введите токен', 'error'); return; }
+            if (token.length < 10) { showStatus('⚠️ Токен слишком короткий', 'error'); return; }
+            accessToken = token;
+            localStorage.setItem('yandex_token', accessToken);
+            updateUI();
+            showStatus('✅ Токен сохранен!', 'success');
+            setTimeout(hideStatus, 2000);
+        }
+
+        function clearToken() {
+            accessToken = null;
+            localStorage.removeItem('yandex_token');
+            updateUI();
+            showStatus('🗑️ Токен очищен', 'info');
+            setTimeout(hideStatus, 2000);
+        }
+
+        async function apiRequest(method, url, body = null) {
+            if (!accessToken) throw new Error('Нет токена');
+            const headers = { 'Authorization': `OAuth ${accessToken}`, 'Accept': 'application/json' };
+            if (body) headers['Content-Type'] = 'application/json';
+            const response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || `Ошибка ${response.status}`);
+            return data;
+        }
+
+        async function checkToken() {
+            if (!accessToken) { showStatus('❌ Сначала сохраните токен', 'error'); return; }
+            setLoading(true); hideStatus();
+            try {
+                const data = await apiRequest('GET', 'https://cloud-api.yandex.net/v1/disk/');
+                showStatus(`✅ Токен валиден!\n👤 Пользователь: ${data.user.display_name || 'неизвестно'}\n📊 Всего: ${(data.total_space / 1024**3).toFixed(2)} ГБ\n📁 Использовано: ${(data.used_space / 1024**3).toFixed(2)} ГБ`, 'success');
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+                if (e.message.includes('401')) clearToken();
+            } finally { setLoading(false); setTimeout(hideStatus, 5000); }
+        }
+
+        async function createFile() {
+            if (!accessToken) { showStatus('❌ Установите токен', 'error'); return; }
+            const filename = filenameInput.value.trim() || 'untitled.txt';
+            const folder = folderPathInput.value.trim();
+            const content = contentTextarea.value;
+            if (!content) { showStatus('⚠️ Введите содержимое', 'error'); return; }
+            
+            const path = folder ? `app:/${folder.replace(/^\/+/, '')}/${filename}` : `app:/${filename}`;
+            setLoading(true); hideStatus();
+
+            try {
+                const uploadData = await apiRequest('GET', `https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`);
+                if (!uploadData.href) throw new Error('Не получен URL для загрузки');
+                
+                const uploadResponse = await fetch(uploadData.href, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+                    body: content
+                });
+                if (!uploadResponse.ok) throw new Error(`Ошибка загрузки: ${uploadResponse.status}`);
+                
+                showStatus(`✅ Файл создан!\n📁 ${path}\n📝 ${content.length} символов`, 'success');
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            } finally { setLoading(false); setTimeout(hideStatus, 5000); }
+        }
+
+        async function listFiles() {
+            if (!accessToken) { showStatus('❌ Установите токен', 'error'); return; }
+            setLoading(true); hideStatus();
+            try {
+                const data = await apiRequest('GET', 'https://cloud-api.yandex.net/v1/disk/resources?path=app:/&limit=50');
+                const items = data._embedded?.items || [];
+                if (items.length === 0) {
+                    showStatus('📂 Папка приложения пуста', 'info');
+                } else {
+                    let list = `📂 Файлы в папке приложения (${items.length}):\n\n`;
+                    items.forEach((item, i) => {
+                        const size = item.size ? `(${(item.size / 1024).toFixed(1)} КБ)` : '';
+                        list += `${i+1}. ${item.name} ${size}\n`;
+                    });
+                    showStatus(list, 'success');
+                }
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            } finally { setLoading(false); setTimeout(hideStatus, 8000); }
+        }
+
+        async function checkDisk() {
+            if (!accessToken) { showStatus('❌ Установите токен', 'error'); return; }
+            setLoading(true); hideStatus();
+            try {
+                const data = await apiRequest('GET', 'https://cloud-api.yandex.net/v1/disk/');
+                showStatus(
+                    `📊 Информация о диске:\n` +
+                    `👤 ${data.user.display_name || 'неизвестно'}\n` +
+                    `📦 Всего: ${(data.total_space / 1024**3).toFixed(2)} ГБ\n` +
+                    `📁 Использовано: ${(data.used_space / 1024**3).toFixed(2)} ГБ\n` +
+                    `🆓 Свободно: ${((data.total_space - data.used_space) / 1024**3).toFixed(2)} ГБ`,
+                    'info'
+                );
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            } finally { setLoading(false); setTimeout(hideStatus, 8000); }
+        }
+
+        // Обработчики
+        saveTokenBtn.addEventListener('click', saveToken);
+        checkTokenBtn.addEventListener('click', checkToken);
+        clearTokenBtn.addEventListener('click', clearToken);
+        createBtn.addEventListener('click', createFile);
+        listFilesBtn.addEventListener('click', listFiles);
+        checkDiskBtn.addEventListener('click', checkDisk);
+        filenameInput.addEventListener('input', updatePath);
+        folderPathInput.addEventListener('input', updatePath);
+        tokenInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveToken(); });
+
+        // Инициализация
+        updateUI();
+        updatePath();
+        console.log('🚀 Приложение готово!');
+        console.log('📌 Client ID:', CLIENT_ID);
+        console.log('🔑 Токен:', accessToken ? '✅ установлен' : '❌ не установлен');
+        console.log('📁 Папка приложения: app:/');
+    </script>
+</body>
+</html>
