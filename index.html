@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузчик Яндекс.Диск</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
+        .btn-danger { background: #fc8181; color: white; }
+        .btn-danger:hover { background: #f56565; }
+        .btn-secondary { background: #a0aec0; color: white; }
+        .btn-secondary:hover { background: #718096; }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .status.success { display: block; background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .status.error { display: block; background: #fed7d7; color: #742a2a; border: 1px solid #feb2b2; }
+        .status.info { display: block; background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; }
+        .token-info {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+        }
+        .token-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .token-input-group input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .path-preview {
+            background: #edf2f7;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+        }
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #4a5568;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #a0aec0;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Яндекс.Диск загрузчик</h1>
+
+        <div class="token-info">
+            <strong>🔑 Client ID:</strong> 834edc54f2be4ea0ae277ac3013d2e91
+        </div>
+
+        <!-- Токен -->
+        <div class="form-group">
+            <label>🔐 OAuth токен</label>
+            <div class="token-input-group">
+                <input type="text" id="tokenInput" placeholder="Вставьте access_token..." style="font-family: monospace; font-size: 13px;">
+                <button id="saveTokenBtn" class="btn btn-success">💾 Сохранить</button>
+                <button id="clearTokenBtn" class="btn btn-danger">🗑️ Очистить</button>
+            </div>
+            <div style="margin-top: 8px; font-size: 13px;">
+                <a href="https://oauth.yandex.com/authorize?response_type=token&client_id=834edc54f2be4ea0ae277ac3013d2e91" target="_blank" style="color: #667eea; font-weight: 600;">
+                    ➜ Получить токен
+                </a>
+            </div>
+        </div>
+
+        <div id="tokenStatus" class="token-info" style="border-left-color: #fc8181;">
+            <span id="tokenMessage">❌ Токен не установлен</span>
+        </div>
+
+        <!-- Создание файла -->
+        <div class="form-group">
+            <label for="filename">📄 Имя файла на Диске</label>
+            <input type="text" id="filename" value="my_note.txt" placeholder="example.txt">
+        </div>
+
+        <div class="form-group">
+            <label for="folderPath">📂 Путь на Диске (опционально)</label>
+            <input type="text" id="folderPath" placeholder="Documents/ или оставьте пустым">
+            <div class="path-preview">
+                📍 <span id="fullPath">app:/my_note.txt</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="content">✏️ Содержимое файла</label>
+            <textarea id="content">Привет! Это файл, загруженный через API Яндекс.Диска.
+Работает откуда угодно — даже из WebView! 🚀</textarea>
+        </div>
+
+        <div class="button-group">
+            <button id="uploadBtn" class="btn btn-primary">📤 Загрузить</button>
+            <button id="listBtn" class="btn btn-secondary">📂 Список файлов</button>
+            <span class="loading" id="loader"><span class="spinner"></span> Загрузка...</span>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+        <div class="footer">Работает через Яндекс.Диск API v1</div>
+    </div>
+
+    <script>
+        // Конфигурация
+        const CLIENT_ID = '834edc54f2be4ea0ae277ac3013d2e91';
+
+        // DOM элементы
+        const tokenInput = document.getElementById('tokenInput');
+        const saveTokenBtn = document.getElementById('saveTokenBtn');
+        const clearTokenBtn = document.getElementById('clearTokenBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+        const tokenMessage = document.getElementById('tokenMessage');
+        const filenameInput = document.getElementById('filename');
+        const folderPathInput = document.getElementById('folderPath');
+        const contentTextarea = document.getElementById('content');
+        const fullPathSpan = document.getElementById('fullPath');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const listBtn = document.getElementById('listBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        const loader = document.getElementById('loader');
+
+        let accessToken = localStorage.getItem('yandex_token') || null;
+
+        function updateUI() {
+            if (accessToken) {
+                tokenStatus.style.borderLeftColor = '#48bb78';
+                tokenMessage.textContent = `✅ Токен активен (${accessToken.substring(0, 20)}...)`;
+                tokenInput.value = accessToken;
+                uploadBtn.disabled = false;
+                listBtn.disabled = false;
+            } else {
+                tokenStatus.style.borderLeftColor = '#fc8181';
+                tokenMessage.textContent = '❌ Токен не установлен';
+                tokenInput.value = '';
+                uploadBtn.disabled = true;
+                listBtn.disabled = true;
+            }
+        }
+
+        function updatePath() {
+            const folder = folderPathInput.value.trim();
+            const filename = filenameInput.value.trim() || 'untitled.txt';
+            const path = folder ? `app:/${folder.replace(/^\/+/, '')}/${filename}` : `app:/${filename}`;
+            fullPathSpan.textContent = path;
+        }
+
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        function setLoading(loading) {
+            loader.style.display = loading ? 'flex' : 'none';
+            uploadBtn.disabled = loading;
+            listBtn.disabled = loading;
+        }
+
+        function saveToken() {
+            const token = tokenInput.value.trim();
+            if (!token) { showStatus('⚠️ Введите токен', 'error'); return; }
+            if (token.length < 10) { showStatus('⚠️ Токен слишком короткий', 'error'); return; }
+            accessToken = token;
+            localStorage.setItem('yandex_token', accessToken);
+            updateUI();
+            showStatus('✅ Токен сохранен!', 'success');
+            setTimeout(hideStatus, 2000);
+        }
+
+        function clearToken() {
+            accessToken = null;
+            localStorage.removeItem('yandex_token');
+            updateUI();
+            showStatus('🗑️ Токен очищен', 'info');
+            setTimeout(hideStatus, 2000);
+        }
+
+        // ============= ГЛАВНАЯ МАГИЯ =============
+        // Загрузка через URL — без CORS проблем!
+
+        async function uploadViaUrl() {
+            if (!accessToken) { showStatus('❌ Установите токен', 'error'); return; }
+
+            const filename = filenameInput.value.trim() || 'untitled.txt';
+            const folder = folderPathInput.value.trim();
+            const content = contentTextarea.value;
+
+            if (!content) { showStatus('⚠️ Введите содержимое', 'error'); return; }
+
+            // 1. Сначала загружаем содержимое в "интернет" (делаем его доступным по URL)
+            // Для простоты используем Data URI (небольшие файлы)
+            // Для больших файлов лучше использовать Blob URL или загружать на бесплатный хостинг
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const fileUrl = URL.createObjectURL(blob);
+
+            // Формируем путь на Диске
+            const path = folder ? `app:/${folder.replace(/^\/+/, '')}/${filename}` : `app:/${filename}`;
+
+            setLoading(true);
+            hideStatus();
+
+            try {
+                // 2. Отправляем запрос на сохранение файла по URL
+                // Яндекс сам скачает файл по переданной ссылке!
+                const uploadUrl = `https://cloud-api.yandex.net/v1/disk/resources/upload?url=${encodeURIComponent(fileUrl)}&path=${encodeURIComponent(path)}&overwrite=true`;
+
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `OAuth ${accessToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Ошибка ${response.status}`);
+                }
+
+                // 3. Получили ссылку на операцию — ждём завершения
+                if (data.href) {
+                    showStatus(`✅ Файл принят на загрузку!\n📁 ${path}\n⏳ Отслеживайте статус операции`, 'success');
+
+                    // Можно дождаться завершения операции
+                    let completed = false;
+                    let attempts = 0;
+                    while (!completed && attempts < 10) {
+                        attempts++;
+                        await new Promise(r => setTimeout(r, 1500));
+
+                        const statusResponse = await fetch(data.href, {
+                            headers: { 'Authorization': `OAuth ${accessToken}` }
+                        });
+                        const statusData = await statusResponse.json();
+
+                        if (statusData.status === 'success') {
+                            completed = true;
+                            showStatus(`✅ Файл успешно загружен!\n📁 ${path}\n📝 ${content.length} символов`, 'success');
+                        } else if (statusData.status === 'failed') {
+                            throw new Error('Не удалось загрузить файл на Диск');
+                        }
+                    }
+
+                    if (!completed) {
+                        showStatus(`✅ Файл отправлен на загрузку.\n📁 ${path}\n⏳ Проверьте Диск через минуту`, 'info');
+                    }
+                } else {
+                    showStatus(`✅ Файл создан!\n📁 ${path}`, 'success');
+                }
+
+            } catch (error) {
+                // Если URL-загрузка не сработала, пробуем альтернативный метод
+                if (error.message.includes('url')) {
+                    showStatus(`⚠️ Не удалось загрузить через URL, пробуем прямой метод...`, 'info');
+                    await uploadDirect(content, path);
+                } else {
+                    showStatus(`❌ Ошибка: ${error.message}`, 'error');
+                }
+            } finally {
+                setLoading(false);
+                setTimeout(hideStatus, 5000);
+            }
+        }
+
+        // Альтернативный метод — прямая загрузка (может работать в WebView)
+        async function uploadDirect(content, path) {
+            try {
+                // Получаем URL для загрузки
+                const response = await fetch(
+                    `https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`,
+                    {
+                        headers: { 'Authorization': `OAuth ${accessToken}` }
+                    }
+                );
+                const data = await response.json();
+
+                if (!data.href) throw new Error('Не получен URL для загрузки');
+
+                // Загружаем файл
+                const uploadResponse = await fetch(data.href, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'text/plain; charset=utf-8'
+                    },
+                    body: content,
+                    mode: 'cors'
+                });
+
+                if (uploadResponse.ok || uploadResponse.status === 201) {
+                    showStatus(`✅ Файл загружен!\n📁 ${path}`, 'success');
+                } else {
+                    throw new Error(`Ошибка загрузки: ${uploadResponse.status}`);
+                }
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        // ============= Список файлов =============
+
+        async function listFiles() {
+            if (!accessToken) { showStatus('❌ Установите токен', 'error'); return; }
+            setLoading(true);
+            hideStatus();
+
+            try {
+                const response = await fetch(
+                    'https://cloud-api.yandex.net/v1/disk/resources?path=app:/&limit=50',
+                    {
+                        headers: { 'Authorization': `OAuth ${accessToken}` }
+                    }
+                );
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.message || `Ошибка ${response.status}`);
+
+                const items = data._embedded?.items || [];
+
+                if (items.length === 0) {
+                    showStatus('📂 Папка приложения пуста', 'info');
+                } else {
+                    let list = `📂 Файлы в папке приложения (${items.length}):\n\n`;
+                    items.forEach((item, i) => {
+                        const size = item.size ? `(${(item.size / 1024).toFixed(1)} КБ)` : '';
+                        list += `${i+1}. ${item.name} ${size}\n`;
+                    });
+                    showStatus(list, 'success');
+                }
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+                setTimeout(hideStatus, 5000);
+            }
+        }
+
+        // Обработчики
+        saveTokenBtn.addEventListener('click', saveToken);
+        clearTokenBtn.addEventListener('click', clearToken);
+        uploadBtn.addEventListener('click', uploadViaUrl);
+        listBtn.addEventListener('click', listFiles);
+        filenameInput.addEventListener('input', updatePath);
+        folderPathInput.addEventListener('input', updatePath);
+        tokenInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveToken(); });
+
+        // Инициализация
+        updateUI();
+        updatePath();
+
+        console.log('🚀 Приложение готово (режим URL-загрузки)');
+        console.log('🔑 Токен:', accessToken ? '✅ установлен' : '❌ не установлен');
+        console.log('📁 Папка приложения: app:/');
+    </script>
+</body>
+</html>
