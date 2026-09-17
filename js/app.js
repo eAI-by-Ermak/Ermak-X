@@ -1,69 +1,53 @@
-/* Ermak X — internal screen controller (no hash, no URL change) */
+/* Ermak X — internal feature screens, zero URL change */
 (function () {
-  var screens = {
-    home: null,
-    ai: { el: null, frame: null, src: '_backup/ai.html', loaded: false },
-    notes: { el: null, frame: null, src: '_backup/notes.html', loaded: false },
-    '4096': { el: null, frame: null, src: '_backup/4096.html', loaded: false }
+  var loaded = { ai: false, notes: false, '4096': false };
+  var srcs = {
+    ai: '_backup/ai.html',
+    notes: '_backup/notes.html',
+    '4096': '_backup/4096.html'
   };
 
   function $(id) { return document.getElementById(id); }
 
-  function init() {
-    screens.ai.el = $('ermakScreenAi');
-    screens.ai.frame = $('ermakFrameAi');
-    screens.notes.el = $('ermakScreenNotes');
-    screens.notes.frame = $('ermakFrameNotes');
-    screens['4096'].el = $('ermakScreen4096');
-    screens['4096'].frame = $('ermakFrame4096');
-
-    var back = $('ermakBackBtn');
-    if (back) {
-      back.onclick = function () { show('home'); };
-    }
-  }
-
   function show(route) {
-    if (!screens.ai.el) init();
+    var screens = {
+      ai: $('ermakScreenAi'),
+      notes: $('ermakScreenNotes'),
+      '4096': $('ermakScreen4096')
+    };
+    var frames = {
+      ai: $('ermakFrameAi'),
+      notes: $('ermakFrameNotes'),
+      '4096': $('ermakFrame4096')
+    };
+    var back = $('ermakBackBtn');
+
+    // always keep address bar clean
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
 
     ['ai', 'notes', '4096'].forEach(function (k) {
-      if (screens[k] && screens[k].el) {
-        screens[k].el.style.display = 'none';
-      }
+      if (screens[k]) screens[k].style.display = 'none';
     });
 
-    var back = $('ermakBackBtn');
     if (route === 'home' || !screens[route]) {
       if (back) back.style.display = 'none';
       document.body.style.overflow = '';
-      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
       return;
     }
 
-    var s = screens[route];
-    if (!s.loaded && s.frame) {
-      s.frame.src = s.src;
-      s.loaded = true;
+    if (!loaded[route] && frames[route]) {
+      frames[route].src = srcs[route];
+      loaded[route] = true;
     }
-    if (s.el) s.el.style.display = 'block';
+    if (screens[route]) screens[route].style.display = 'block';
     if (back) back.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   }
 
-  window.ErmakApp = {
-    show: show,
-    current: function () {
-      if (screens.ai.el && screens.ai.el.style.display === 'block') return 'ai';
-      if (screens.notes.el && screens.notes.el.style.display === 'block') return 'notes';
-      if (screens['4096'].el && screens['4096'].el.style.display === 'block') return '4096';
-      return 'home';
-    }
-  };
+  window.ErmakApp = { show: show };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var back = $('ermakBackBtn');
+    if (back) back.onclick = function () { show('home'); };
+  });
 })();
