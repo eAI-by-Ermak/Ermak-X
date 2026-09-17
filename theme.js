@@ -1,4 +1,6 @@
-/* Shared liquid-glass pointer lighting. Safe no-op if a page has no glass nodes. */
+/* Ermak X — Liquid Glass pointer lighting v2
+   Fluid specular highlights that follow the cursor.
+   Safe no-op if a page has no glass nodes. */
 (function () {
   var root = document.documentElement;
   var hoverEl = null;
@@ -27,7 +29,7 @@
     var t = e.target;
     if (!t || !t.closest) return;
     var el = t.closest(
-      ".glass,.cal-card,.storage-card,.chat-prev,.tool-card,.profile-card,.settings-section,.nav-shell,.score-pill,.board-wrap,.card,.search,.home-btn,.glass-btn,.top-capsule,.ibar,.scrolldown,.home-fab,.info-chip,.modal-box,.drawer"
+      ".glass,.cal-card,.storage-card,.chat-prev,.tool-card,.profile-card,.settings-section,.nav-shell,.score-pill,.board-wrap,.card,.search,.home-btn,.glass-btn,.top-capsule,.ibar,.scrolldown,.home-fab,.info-chip,.modal-box,.drawer,.song-row"
     );
     if (hoverEl && hoverEl !== el) {
       hoverEl.style.removeProperty("--mx");
@@ -47,7 +49,7 @@
       document.body.classList.contains("theme-dark");
     var light = document.documentElement.classList.contains("theme-light") ||
       document.body.classList.contains("theme-light");
-    if (dark) document.documentElement.style.background = "#07070a";
-    if (light) document.documentElement.style.background = "#e8eef6";
+    if (dark) document.documentElement.style.background = "#050508";
+    if (light) document.documentElement.style.background = "#e6eef7";
   } catch (e) {}
 })();
