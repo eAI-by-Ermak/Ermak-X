@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#07070a">
+<meta name="theme-color" content="#050508">
 <title>Ermak X</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
 <script>
@@ -12,14 +12,14 @@
     var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
-    document.documentElement.style.background=r==='light'?'#e8eef6':'#07070a';
+    document.documentElement.style.background=r==='light'?'#e6eef7':'#050508';
   }catch(e){}
 })();
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
-html{background:#e8eef6}html.theme-dark{background:#07070a!important}
+html{background:#e6eef7}html.theme-dark{background:#050508!important}
 body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
 body.theme-dark{
   --bg:#000;--text:#f5f5f7;--text2:#98989f;--surface:rgba(28,10,10,.55);
@@ -52,235 +52,134 @@ body.theme-light{
 .add-btn:active{transform:scale(.96)}
 .search{
   width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--border);
-  background:var(--glass);color:var(--text);font:inherit;font-size:14px;margin-bottom:12px;
-  backdrop-filter:blur(20px);outline:none;
+  background:var(--glass);color:var(--text);font:inherit;font-size:15px;outline:none;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
-.list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.search::placeholder{color:var(--text2)}
+.list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px 0;margin:0 -2px;padding-right:2px}
 .card{
-  text-align:left;width:100%;padding:14px 16px;border-radius:18px;border:1px solid var(--border);
-  background:var(--glass);color:var(--text);font:inherit;cursor:pointer;
-  backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
-  box-shadow:0 4px 16px rgba(0,0,0,.05);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 16px;
+  cursor:pointer;transition:transform .15s;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
-.card:active{transform:scale(.985)}
-.card .title{font-size:15px;font-weight:650;margin-bottom:4px}
-.card .preview{font-size:13px;color:var(--text2);line-height:1.4;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card .meta{font-size:11px;color:var(--text2);margin-top:8px}
-.empty{text-align:center;color:var(--text2);padding:48px 16px;font-size:14px}
+.card:active{transform:scale(.98)}
+.card-title{font-size:16px;font-weight:650;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-preview{font-size:13px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-date{font-size:11px;color:var(--text2);margin-top:8px;opacity:.8}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text2);gap:8px;text-align:center;padding:40px 20px}
+.empty-title{font-size:18px;font-weight:650;color:var(--text)}
 .editor{
   position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column;
   padding:calc(12px + env(safe-area-inset-top,0px)) 14px calc(12px + env(safe-area-inset-bottom,0px));
-  max-width:560px;margin:0 auto;left:0;right:0;
 }
 .editor.on{display:flex}
-.ed-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ed-bar{display:flex;gap:8px;margin-bottom:12px}
 .ed-bar button{
   border:1px solid var(--border);background:var(--surface);color:var(--text);
-  border-radius:12px;padding:9px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  border-radius:14px;padding:10px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
 }
-.ed-bar button.primary{background:var(--accent);color:#fff;border:none}
-.ed-bar button.danger{color:var(--accent)}
-.ed-bar .spacer{flex:1}
+.ed-bar button.primary{background:var(--accent);color:#fff;border:none;box-shadow:0 6px 18px rgba(255,59,48,.3)}
 .ed-title{
-  width:100%;padding:12px 4px;border:none;border-bottom:1px solid var(--border);
-  background:transparent;color:var(--text);font:inherit;font-size:20px;font-weight:700;outline:none;margin-bottom:10px;
+  width:100%;border:none;background:transparent;color:var(--text);font:inherit;font-size:22px;font-weight:700;
+  outline:none;padding:8px 0;letter-spacing:-.02em;
 }
 .ed-body{
   flex:1;width:100%;border:none;background:transparent;color:var(--text);font:inherit;font-size:16px;
-  line-height:1.55;outline:none;resize:none;
-}
-@media(min-width:700px){
-  .app,.editor{max-width:640px}
-  .list{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
-  .empty{grid-column:1/-1}
+  outline:none;resize:none;line-height:1.5;padding:8px 0;
 }
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
-<body class="theme-dark">
-<div class="bg-layer" aria-hidden="true">
-  <div class="bg-base"></div>
-  <div class="bg-grid"></div>
-  <div class="bg-orb a"></div>
-  <div class="bg-orb b"></div>
-  <div class="bg-noise"></div>
-</div>
-
-<button class="home-btn" id="homeBtn" title="Home" aria-label="Home">
-  <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
-</button>
+<body>
 <div class="app">
   <div class="head">
-    <h1>Notes<span>.</span></h1>
-    <button type="button" class="add-btn" id="addBtn">New note</button>
+    <h1>Notes <span>·</span></h1>
+    <button class="add-btn" id="addBtn">+ New</button>
   </div>
-  <input class="search" id="search" type="search" placeholder="Search notes…" autocomplete="off">
-  <div class="list" id="list"><div class="empty">Loading…</div></div>
+  <input class="search" id="search" placeholder="Search notes…" type="search">
+  <div class="list" id="list"></div>
+  <div class="empty" id="empty" style="display:none">
+    <div class="empty-title">No notes yet</div>
+    <div>Tap + New to create one</div>
+  </div>
 </div>
+<button class="home-btn" id="homeBtn" title="Home" aria-label="Home">
+  <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+</button>
 <div class="editor" id="editor">
   <div class="ed-bar">
-    <button type="button" id="backBtn">Back</button>
-    <div class="spacer"></div>
-    <button type="button" class="danger" id="delBtn">Delete</button>
-    <button type="button" class="primary" id="saveBtn">Save</button>
+    <button id="edBack">← Back</button>
+    <button class="primary" id="edSave">Save</button>
+    <button id="edDel" style="margin-left:auto;color:var(--accent)">Delete</button>
   </div>
-  <input class="ed-title" id="edTitle" placeholder="Title" maxlength="120">
+  <input class="ed-title" id="edTitle" placeholder="Title">
   <textarea class="ed-body" id="edBody" placeholder="Write something…"></textarea>
 </div>
 <script>
-const DB_NAME='ermakx', DB_VER=2;
-let _db=null;
-function openDB(){
-  return new Promise((res,rej)=>{
-    const r=indexedDB.open(DB_NAME,DB_VER);
-    r.onupgradeneeded=()=>{const db=r.result; if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv')};
-    r.onsuccess=()=>{_db=r.result; res(_db)};
-    r.onerror=()=>rej(r.error);
-  });
-}
-function idbGet(key){
-  return openDB().then(db=>new Promise((res,rej)=>{
-    const q=db.transaction('kv','readonly').objectStore('kv').get(key);
-    q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error);
-  }));
-}
-function idbSet(key,val){
-  return openDB().then(db=>new Promise((res,rej)=>{
-    const q=db.transaction('kv','readwrite').objectStore('kv').put(val,key);
-    q.onsuccess=()=>res(); q.onerror=()=>rej(q.error);
-  }));
-}
-function navigateErmak(url){
-  try{
-    const ov=document.createElement('div');
-    ov.style.cssText='position:fixed;inset:0;z-index:99999;opacity:0;transition:opacity .28s ease;pointer-events:all';
-    ov.style.background=getComputedStyle(document.body).backgroundColor||'#000';
-    document.body.appendChild(ov);
-    requestAnimationFrame(()=>{ov.style.opacity='1'});
-    setTimeout(()=>{location.href=url},280);
-  }catch(e){location.href=url}
-}
-function uid(){return 'n_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+(function(){
+  const $ = id => document.getElementById(id);
+  let notes = [];
+  let editing = null;
+  try { notes = JSON.parse(localStorage.getItem('ermakx_notes') || '[]'); } catch(e){}
 
-let notes=[];
-let editingId=null;
-
-async function loadTheme(){
-  let theme='system';
-  try{const s=await idbGet('ermakx_settings'); if(s&&s.theme) theme=s.theme}catch(e){}
-  let resolved=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
-  try{const c=sessionStorage.getItem('ermakx_theme_resolved'); if(c) resolved=c}catch(e){}
-  document.body.classList.remove('theme-dark','theme-light');
-  document.body.classList.add('theme-'+resolved);
-  document.documentElement.classList.remove('theme-dark','theme-light');
-  document.documentElement.classList.add('theme-'+resolved);
-  document.documentElement.style.background=resolved==='light'?'#e8eef6':'#07070a';
-  try{sessionStorage.setItem('ermakx_theme_resolved',resolved)}catch(e){}
-  const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.content=resolved==='light'?'#e8eef6':'#07070a';
-}
-
-async function loadNotes(){
-  try{
-    const v=await idbGet('ermakx_notes');
-    notes=Array.isArray(v)?v:[];
-  }catch(e){ notes=[] }
-}
-async function saveNotes(){
-  try{ await idbSet('ermakx_notes', notes); }catch(e){}
-}
-
-function fmtDate(iso){
-  try{
-    const d=new Date(iso);
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){return ''}
-}
-
-function filtered(){
-  const q=(document.getElementById('search').value||'').trim().toLowerCase();
-  let list=notes.slice().sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
-  if(q) list=list.filter(n=>(n.title||'').toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q));
-  return list;
-}
-
-function renderList(){
-  const list=document.getElementById('list');
-  const items=filtered();
-  if(!items.length){
-    list.innerHTML='<div class="empty">'+(notes.length?'No matches':'No notes yet.<br>Tap New note to start.')+'</div>';
-    return;
+  function save(){ localStorage.setItem('ermakx_notes', JSON.stringify(notes)); }
+  function render(filter=''){
+    const q = filter.trim().toLowerCase();
+    const list = $('list');
+    list.innerHTML = '';
+    const filtered = notes.filter(n => !q || (n.title||'').toLowerCase().includes(q) || (n.body||'').toLowerCase().includes(q));
+    $('empty').style.display = filtered.length ? 'none' : 'flex';
+    filtered.sort((a,b)=>(b.updated||0)-(a.updated||0)).forEach(n => {
+      const d = document.createElement('div');
+      d.className = 'card';
+      d.innerHTML = `<div class="card-title">${esc(n.title||'Untitled')}</div>
+        <div class="card-preview">${esc((n.body||'').slice(0,120))}</div>
+        <div class="card-date">${fmt(n.updated)}</div>`;
+      d.onclick = () => open(n.id);
+      list.appendChild(d);
+    });
   }
-  list.innerHTML=items.map(n=>{
-    const prev=(n.body||'').replace(/\s+/g,' ').trim().slice(0,140);
-    return '<button type="button" class="card" data-id="'+n.id+'"><div class="title">'+esc(n.title||'Untitled')+'</div>'
-      +(prev?'<div class="preview">'+esc(prev)+'</div>':'')
-      +'<div class="meta">'+esc(fmtDate(n.updatedAt||n.createdAt))+'</div></button>';
-  }).join('');
-  list.querySelectorAll('.card').forEach(btn=>{
-    btn.addEventListener('click',()=>openEditor(btn.getAttribute('data-id')));
-  });
-}
-
-function openEditor(id){
-  editingId=id||null;
-  let n=id?notes.find(x=>x.id===id):null;
-  if(!n && id){ editingId=null; n=null; }
-  document.getElementById('edTitle').value=n? (n.title||'') : '';
-  document.getElementById('edBody').value=n? (n.body||'') : '';
-  document.getElementById('delBtn').style.display=n?'':'none';
-  document.getElementById('editor').classList.add('on');
-  setTimeout(()=>document.getElementById(n?'edBody':'edTitle').focus(),50);
-}
-
-function closeEditor(){
-  document.getElementById('editor').classList.remove('on');
-  editingId=null;
-  renderList();
-}
-
-async function saveCurrent(){
-  const title=(document.getElementById('edTitle').value||'').trim();
-  const body=(document.getElementById('edBody').value||'').trim();
-  if(!title && !body){ closeEditor(); return; }
-  const now=new Date().toISOString();
-  if(editingId){
-    const n=notes.find(x=>x.id===editingId);
-    if(n){ n.title=title||'Untitled'; n.body=body; n.updatedAt=now; }
-  }else{
-    notes.unshift({id:uid(),title:title||'Untitled',body:body,createdAt:now,updatedAt:now});
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmt(t){ if(!t) return ''; const d=new Date(t); return d.toLocaleDateString()+' '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+  function open(id){
+    editing = notes.find(n=>n.id===id) || null;
+    if(!editing) return;
+    $('edTitle').value = editing.title||'';
+    $('edBody').value = editing.body||'';
+    $('editor').classList.add('on');
   }
-  await saveNotes();
-  closeEditor();
-}
+  function close(){ $('editor').classList.remove('on'); editing=null; }
+  $('addBtn').onclick = () => {
+    const id = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+    const n = {id, title:'', body:'', updated:Date.now()};
+    notes.push(n); save(); open(id);
+  };
+  $('edBack').onclick = () => { close(); render($('search').value); };
+  $('edSave').onclick = () => {
+    if(!editing) return;
+    editing.title = $('edTitle').value;
+    editing.body = $('edBody').value;
+    editing.updated = Date.now();
+    save(); close(); render($('search').value);
+  };
+  $('edDel').onclick = () => {
+    if(!editing || !confirm('Delete this note?')) return;
+    notes = notes.filter(n=>n.id!==editing.id);
+    save(); close(); render($('search').value);
+  };
+  $('search').oninput = () => render($('search').value);
+  $('homeBtn').onclick = () => location.href = 'index.html';
+  render();
 
-async function deleteCurrent(){
-  if(!editingId) return;
-  if(!confirm('Delete this note?')) return;
-  notes=notes.filter(n=>n.id!==editingId);
-  await saveNotes();
-  closeEditor();
-}
-
-async function init(){
-  await loadTheme();
-  await loadNotes();
-  renderList();
-  document.getElementById('homeBtn').addEventListener('click',()=>navigateErmak('index.html'));
-  document.getElementById('addBtn').addEventListener('click',()=>openEditor(null));
-  document.getElementById('backBtn').addEventListener('click',()=>{
-    // auto-save on back if content exists
-    const title=(document.getElementById('edTitle').value||'').trim();
-    const body=(document.getElementById('edBody').value||'').trim();
-    if(title||body) saveCurrent(); else closeEditor();
-  });
-  document.getElementById('saveBtn').addEventListener('click',saveCurrent);
-  document.getElementById('delBtn').addEventListener('click',deleteCurrent);
-  document.getElementById('search').addEventListener('input',renderList);
-}
-document.addEventListener('DOMContentLoaded', init);
+  // theme sync
+  try{
+    var resolved = sessionStorage.getItem('ermakx_theme_resolved') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    document.documentElement.classList.add('theme-'+resolved);
+    document.body.classList.add('theme-'+resolved);
+    document.documentElement.style.background=resolved==='light'?'#e6eef7':'#050508';
+    var meta=document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.content=resolved==='light'?'#e6eef7':'#050508';
+  }catch(e){}
+})();
 </script>
 <script src="theme.js" defer></script>
 </body>
