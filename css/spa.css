@@ -1,0 +1,84 @@
+/* Ermak X — SPA transitions & performance */
+:root {
+  --spa-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --spa-duration: 0.48s;
+}
+
+.spa-frame {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.96) translateY(14px);
+  filter: blur(10px);
+  transition:
+    opacity var(--spa-duration) var(--spa-ease),
+    transform var(--spa-duration) var(--spa-ease),
+    filter var(--spa-duration) var(--spa-ease),
+    visibility 0s linear var(--spa-duration);
+  will-change: auto;
+  contain: strict;
+  z-index: 10;
+}
+
+.spa-frame.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1) translateY(0);
+  filter: blur(0);
+  transition:
+    opacity var(--spa-duration) var(--spa-ease),
+    transform var(--spa-duration) var(--spa-ease),
+    filter var(--spa-duration) var(--spa-ease),
+    visibility 0s linear 0s;
+  will-change: opacity, transform, filter;
+  z-index: 20;
+}
+
+.spa-frame.is-home.is-active { z-index: 12; }
+
+.spa-frame.is-leaving {
+  opacity: 0;
+  transform: scale(1.03) translateY(-10px);
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: 15;
+}
+
+#spaVeil {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(255, 59, 48, 0.14), transparent 68%),
+    rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(0px) saturate(1.2);
+  -webkit-backdrop-filter: blur(0px) saturate(1.2);
+  transition:
+    opacity 0.32s var(--spa-ease),
+    backdrop-filter 0.32s var(--spa-ease),
+    -webkit-backdrop-filter 0.32s var(--spa-ease);
+}
+
+#spaVeil.is-on {
+  opacity: 1;
+  backdrop-filter: blur(8px) saturate(1.35);
+  -webkit-backdrop-filter: blur(8px) saturate(1.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spa-frame,
+  #spaVeil {
+    transition-duration: 0.01ms !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
