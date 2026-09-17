@@ -1,53 +1,159 @@
-/* Ermak X — internal feature screens, zero URL change */
+/* Ermak X — smooth SPA controller
+   - No URL change / no hash
+   - Magical transitions between screens
+   - No overlay back button
+   - Preload feature screens after idle
+*/
 (function () {
-  var loaded = { ai: false, notes: false, '4096': false };
-  var srcs = {
-    ai: '_backup/ai.html',
-    notes: '_backup/notes.html',
-    '4096': '_backup/4096.html'
+  'use strict';
+
+  var ROUTES = {
+    home:  { id: 'frame-home',  src: '_backup/index.html', loaded: true },
+    ai:    { id: 'frame-ai',    src: '_backup/ai.html',    loaded: false },
+    notes: { id: 'frame-notes', src: '_backup/notes.html', loaded: false },
+    '4096':{ id: 'frame-4096',  src: '_backup/4096.html',  loaded: false }
   };
+
+  var current = 'home';
+  var transitioning = false;
+  var veil = null;
+  var DURATION = 480;
 
   function $(id) { return document.getElementById(id); }
 
-  function show(route) {
-    var screens = {
-      ai: $('ermakScreenAi'),
-      notes: $('ermakScreenNotes'),
-      '4096': $('ermakScreen4096')
-    };
-    var frames = {
-      ai: $('ermakFrameAi'),
-      notes: $('ermakFrameNotes'),
-      '4096': $('ermakFrame4096')
-    };
-    var back = $('ermakBackBtn');
-
-    // always keep address bar clean
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-
-    ['ai', 'notes', '4096'].forEach(function (k) {
-      if (screens[k]) screens[k].style.display = 'none';
-    });
-
-    if (route === 'home' || !screens[route]) {
-      if (back) back.style.display = 'none';
-      document.body.style.overflow = '';
-      return;
-    }
-
-    if (!loaded[route] && frames[route]) {
-      frames[route].src = srcs[route];
-      loaded[route] = true;
-    }
-    if (screens[route]) screens[route].style.display = 'block';
-    if (back) back.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+  function frame(route) {
+    var r = ROUTES[route];
+    return r ? $(r.id) : null;
   }
 
-  window.ErmakApp = { show: show };
+  function cleanUrl() {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var back = $('ermakBackBtn');
-    if (back) back.onclick = function () { show('home'); };
-  });
+  function wireNavigate(win) {
+    if (!win) return;
+    try {
+      win.navigateErmak = function (url) {
+        var u = String(url || '');
+        if (u.indexOf('ai') >= 0) show('ai');
+        else if (u.indexOf('notes') >= 0) show('notes');
+        else if (u.indexOf('4096') >= 0) show('4096');
+        else show('home');
+      };
+      win.ErmakApp = { show: show };
+    } catch (e) {}
+  }
+
+  function ensureLoaded(route) {
+    var r = ROUTES[route];
+    if (!r || r.loaded) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var el = $(r.id);
+      if (!el) return resolve();
+      var done = function () {
+        r.loaded = true;
+        wireNavigate(el.contentWindow);
+        el.removeEventListener('load', done);
+        resolve();
+      };
+      el.addEventListener('load', done);
+      el.src = r.src;
+    });
+  }
+
+  function showVeil(on) {
+    if (!veil) veil = $('spaVeil');
+    if (!veil) return;
+    if (on) veil.classList.add('is-on');
+    else veil.classList.remove('is-on');
+  }
+
+  function show(route) {
+    if (!ROUTES[route]) route = 'home';
+    if (route === current && !transitioning) return;
+    if (transitioning) return;
+
+    cleanUrl();
+    transitioning = true;
+
+    var fromEl = frame(current);
+    var toRoute = route;
+
+    showVeil(true);
+
+    ensureLoaded(toRoute).then(function () {
+      var toEl = frame(toRoute);
+      if (!toEl) {
+        transitioning = false;
+        showVeil(false);
+        return;
+      }
+
+      toEl.classList.remove('is-leaving');
+      void toEl.offsetWidth;
+
+      if (fromEl && fromEl !== toEl) {
+        fromEl.classList.add('is-leaving');
+        fromEl.classList.remove('is-active');
+      }
+
+      toEl.classList.add('is-active');
+      toEl.classList.remove('is-leaving');
+
+      current = toRoute;
+
+      setTimeout(function () {
+        if (fromEl && fromEl !== toEl) {
+          fromEl.classList.remove('is-leaving');
+        }
+        if (toEl) toEl.style.willChange = 'auto';
+        if (fromEl) fromEl.style.willChange = 'auto';
+        showVeil(false);
+        transitioning = false;
+        wireNavigate(toEl.contentWindow);
+      }, DURATION);
+    });
+  }
+
+  function preloadRest() {
+    ['ai', 'notes', '4096'].forEach(function (r, i) {
+      setTimeout(function () { ensureLoaded(r); }, 1200 + i * 600);
+    });
+  }
+
+  function init() {
+    veil = $('spaVeil');
+    var home = frame('home');
+    if (home) {
+      home.addEventListener('load', function () {
+        wireNavigate(home.contentWindow);
+        var boot = $('boot');
+        if (boot) {
+          boot.classList.add('is-gone');
+          setTimeout(function () { if (boot.parentNode) boot.remove(); }, 450);
+        }
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(preloadRest, { timeout: 2500 });
+        } else {
+          setTimeout(preloadRest, 1500);
+        }
+      });
+    }
+
+    window.ErmakApp = { show: show, current: function () { return current; } };
+
+    window.addEventListener('message', function (ev) {
+      if (!ev.data) return;
+      if (ev.data === 'ermak:home' || (ev.data && ev.data.type === 'ermak:home')) show('home');
+      if (ev.data === 'ermak:ai' || (ev.data && ev.data.type === 'ermak:ai')) show('ai');
+      if (ev.data === 'ermak:notes' || (ev.data && ev.data.type === 'ermak:notes')) show('notes');
+      if (ev.data === 'ermak:4096' || (ev.data && ev.data.type === 'ermak:4096')) show('4096');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

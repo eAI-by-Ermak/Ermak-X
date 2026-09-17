@@ -12,101 +12,38 @@
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
     document.documentElement.style.background=r==='light'?'#e6eef7':'#050508';
+    document.documentElement.style.colorScheme=r;
   }catch(e){}
 })();
 </script>
 <link rel="stylesheet" href="theme.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
 <style>
 html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;background:#050508}
-html.theme-light,body.theme-light{background:#e6eef7!important}
-iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}
-#aiFrame,#notesFrame,#gameFrame{display:none;z-index:20}
-#homeFrame{z-index:10;display:block}
-#backBtn{
-  display:none;position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;z-index:100;
-  width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);
-  background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(20px);cursor:pointer;
-  align-items:center;justify-content:center;padding:0;
+html.theme-light{background:#e6eef7!important}
+#boot{
+  position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:inherit;color:#98989f;font:500 15px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  transition:opacity .4s cubic-bezier(.22,1,.36,1);
 }
-#boot{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
-  background:inherit;color:#98989f;font:15px -apple-system,system-ui,sans-serif}
+#boot.is-gone{opacity:0;pointer-events:none}
+#boot .dot{
+  width:8px;height:8px;border-radius:50%;background:#ff3b30;margin-right:10px;
+  animation:pulse 1s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
 </style>
 </head>
 <body>
-<div id="boot">Loading…</div>
-<iframe id="homeFrame" src="_backup/index.html" title="Home"></iframe>
-<iframe id="aiFrame" src="about:blank" title="AI" allow="clipboard-write"></iframe>
-<iframe id="notesFrame" src="about:blank" title="Notes" allow="clipboard-write"></iframe>
-<iframe id="gameFrame" src="about:blank" title="4096" allow="clipboard-write"></iframe>
-<button id="backBtn" type="button" aria-label="Back">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-</button>
-<script>
-(function(){
-  var home=document.getElementById('homeFrame');
-  var ai=document.getElementById('aiFrame');
-  var notes=document.getElementById('notesFrame');
-  var game=document.getElementById('gameFrame');
-  var back=document.getElementById('backBtn');
-  var boot=document.getElementById('boot');
-  var loaded={ai:false,notes:false,game:false};
+<div id="boot"><span class="dot"></span>Ermak X</div>
+<div id="spaVeil"></div>
 
-  function cleanUrl(){
-    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
-  }
+<iframe id="frame-home" class="spa-frame is-home is-active" src="_backup/index.html" title="Home"></iframe>
+<iframe id="frame-ai" class="spa-frame" src="about:blank" title="AI" allow="clipboard-write"></iframe>
+<iframe id="frame-notes" class="spa-frame" src="about:blank" title="Notes" allow="clipboard-write"></iframe>
+<iframe id="frame-4096" class="spa-frame" src="about:blank" title="4096" allow="clipboard-write"></iframe>
 
-  function wireFrame(frame){
-    try{
-      var w=frame.contentWindow;
-      if(!w) return;
-      w.navigateErmak=function(url){
-        var u=String(url||'');
-        if(u.indexOf('ai')>=0) show('ai');
-        else if(u.indexOf('notes')>=0) show('notes');
-        else if(u.indexOf('4096')>=0) show('4096');
-        else show('home');
-      };
-      w.ErmakApp={show:show};
-    }catch(e){}
-  }
-
-  function show(route){
-    cleanUrl();
-    ai.style.display='none';
-    notes.style.display='none';
-    game.style.display='none';
-    if(route==='home'){
-      home.style.display='block';
-      back.style.display='none';
-      return;
-    }
-    home.style.display='none';
-    back.style.display='flex';
-    if(route==='ai'){
-      if(!loaded.ai){ai.src='_backup/ai.html';loaded.ai=true;}
-      ai.style.display='block';
-    } else if(route==='notes'){
-      if(!loaded.notes){notes.src='_backup/notes.html';loaded.notes=true;}
-      notes.style.display='block';
-    } else if(route==='4096'){
-      if(!loaded.game){game.src='_backup/4096.html';loaded.game=true;}
-      game.style.display='block';
-    }
-  }
-
-  window.ErmakApp={show:show};
-
-  home.addEventListener('load',function(){
-    if(boot) boot.style.display='none';
-    wireFrame(home);
-  });
-  ai.addEventListener('load',function(){ wireFrame(ai); });
-  notes.addEventListener('load',function(){ wireFrame(notes); });
-  game.addEventListener('load',function(){ wireFrame(game); });
-
-  back.onclick=function(){ show('home'); };
-})();
-</script>
+<script src="js/app.js"></script>
 <script src="theme.js" defer></script>
 </body>
 </html>
