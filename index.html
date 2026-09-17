@@ -2,82 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#050508" id="themeColorMeta">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ermak X</title>
 <script>
-(function(){
-  try {
-    var cached = null;
-    try { cached = sessionStorage.getItem('ermakx_theme_resolved'); } catch(e){}
-    var resolved = cached || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.classList.add('theme-'+resolved);
-    document.documentElement.style.background = resolved==='light' ? '#e6eef7' : '#050508';
-  } catch(e){}
-})();
+  // Full original interface lives in _backup (complete UI from before SPA experiments)
+  // This keeps the root clean while serving the exact backup experience without #hash
+  location.replace('_backup/index.html');
 </script>
-<link rel="stylesheet" href="theme.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
-<style>
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg,#050508);color:var(--text,#f5f5f7);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif}
-#spaOverlay{display:none;position:fixed;inset:0;z-index:10000;background:var(--bg,#050508)}
-#spaFrame{width:100%;height:100%;border:0}
-#spaClose{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;z-index:10001;width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.45);color:#fff;backdrop-filter:blur(20px);cursor:pointer;display:flex;align-items:center;justify-content:center}
-</style>
+<meta http-equiv="refresh" content="0;url=_backup/index.html">
 </head>
-<body>
-<div id="homeRoot" style="height:100%;overflow:auto;-webkit-overflow-scrolling:touch">
-  <!-- The full home UI is preserved from the previous index; for the SPA cut-over we keep a clean launcher that opens the feature screens. -->
-  <div style="max-width:440px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top,0px)) 20px 40px;text-align:center">
-    <h1 style="font-size:32px;font-weight:700;letter-spacing:-.04em;margin:40px 0 8px">Ermak X</h1>
-    <p style="color:var(--text-2,#a0a0a8);margin-bottom:32px">Single entry · SPA</p>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <button onclick="location.hash='ai'" style="padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-weight:600;cursor:pointer">AI Chat</button>
-      <button onclick="location.hash='notes'" style="padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-weight:600;cursor:pointer">Notes</button>
-      <button onclick="location.hash='4096'" style="padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-weight:600;cursor:pointer">4096</button>
-    </div>
-  </div>
-</div>
-
-<div id="spaOverlay">
-  <iframe id="spaFrame" allow="clipboard-write"></iframe>
-  <button id="spaClose" aria-label="Back">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-  </button>
-</div>
-
-<script src="js/router.js"></script>
-<script src="theme.js" defer></script>
-<script>
-(function(){
-  var overlay = document.getElementById('spaOverlay');
-  var frame = document.getElementById('spaFrame');
-  var home = document.getElementById('homeRoot');
-  var closeBtn = document.getElementById('spaClose');
-  var routes = {
-    ai: '_backup/ai.html',
-    notes: '_backup/notes.html',
-    '4096': '_backup/4096.html'
-  };
-  function showRoute(route) {
-    if (route === 'home' || !routes[route]) {
-      overlay.style.display = 'none';
-      if (home) home.style.display = '';
-      frame.src = 'about:blank';
-      return;
-    }
-    if (home) home.style.display = 'none';
-    overlay.style.display = 'block';
-    if (frame.getAttribute('data-src') !== routes[route]) {
-      frame.src = routes[route];
-      frame.setAttribute('data-src', routes[route]);
-    }
-  }
-  window.addEventListener('ermak:route', function(e){ showRoute(e.detail.route); });
-  if (closeBtn) closeBtn.onclick = function(){ location.hash = 'home'; };
-  var h = (location.hash || '#home').replace(/^#/,'') || 'home';
-  showRoute(h);
-})();
-</script>
+<body style="background:#050508;color:#f5f5f7;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
+  Loading Ermak X…
 </body>
 </html>
