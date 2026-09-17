@@ -2,16 +2,119 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050508">
 <title>Ermak X</title>
 <script>
-  // Full original interface lives in _backup (complete UI from before SPA experiments)
-  // This keeps the root clean while serving the exact backup experience without #hash
-  location.replace('_backup/index.html');
+(function(){
+  try{
+    var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
+    var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    document.documentElement.classList.add('theme-'+r);
+    document.documentElement.style.background=r==='light'?'#e6eef7':'#050508';
+  }catch(e){}
+})();
 </script>
-<meta http-equiv="refresh" content="0;url=_backup/index.html">
+<link rel="stylesheet" href="theme.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
+<style>
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg,#050508)}
+#homeFrame,#aiFrame,#notesFrame,#gameFrame{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}
+.ermak-screen{display:none}
+#backBtn{
+  display:none;position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;z-index:10001;
+  width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.5);color:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  cursor:pointer;align-items:center;justify-content:center;
+}
+</style>
 </head>
-<body style="background:#050508;color:#f5f5f7;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-  Loading Ermak X…
+<body>
+<!-- Full original home UI (exact code from backup) -->
+<iframe id="homeFrame" src="_backup/index.html" title="Home"></iframe>
+
+<!-- Feature screens — same code from backup, shown without URL change -->
+<iframe id="aiFrame" class="ermak-screen" src="about:blank" title="AI" allow="clipboard-write"></iframe>
+<iframe id="notesFrame" class="ermak-screen" src="about:blank" title="Notes" allow="clipboard-write"></iframe>
+<iframe id="gameFrame" class="ermak-screen" src="about:blank" title="4096" allow="clipboard-write"></iframe>
+
+<button id="backBtn" aria-label="Back">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+
+<script src="js/app.js"></script>
+<script src="theme.js" defer></script>
+<script>
+(function(){
+  var home = document.getElementById('homeFrame');
+  var ai = document.getElementById('aiFrame');
+  var notes = document.getElementById('notesFrame');
+  var game = document.getElementById('gameFrame');
+  var back = document.getElementById('backBtn');
+  var loaded = {ai:false, notes:false, game:false};
+
+  function hideAll() {
+    ai.style.display = 'none';
+    notes.style.display = 'none';
+    game.style.display = 'none';
+    home.style.display = 'block';
+    back.style.display = 'none';
+  }
+
+  function show(route) {
+    // keep address bar clean — no hash, no path change
+    try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+
+    if (route === 'home') {
+      hideAll();
+      return;
+    }
+    home.style.display = 'none';
+    ai.style.display = 'none';
+    notes.style.display = 'none';
+    game.style.display = 'none';
+    back.style.display = 'flex';
+
+    if (route === 'ai') {
+      if (!loaded.ai) { ai.src = '_backup/ai.html'; loaded.ai = true; }
+      ai.style.display = 'block';
+    } else if (route === 'notes') {
+      if (!loaded.notes) { notes.src = '_backup/notes.html'; loaded.notes = true; }
+      notes.style.display = 'block';
+    } else if (route === '4096') {
+      if (!loaded.game) { game.src = '_backup/4096.html'; loaded.game = true; }
+      game.style.display = 'block';
+    }
+  }
+
+  // Override navigateErmak inside the home iframe when it loads
+  home.addEventListener('load', function() {
+    try {
+      var w = home.contentWindow;
+      if (!w) return;
+      w.navigateErmak = function(url) {
+        var r = 'home';
+        if (url && url.indexOf('ai') >= 0) r = 'ai';
+        else if (url && url.indexOf('notes') >= 0) r = 'notes';
+        else if (url && url.indexOf('4096') >= 0) r = '4096';
+        show(r);
+      };
+      // also expose for any other calls
+      w.ErmakApp = { show: show };
+    } catch(e) { console.warn('cross-frame', e); }
+  });
+
+  back.onclick = function(){ show('home'); };
+
+  window.ErmakApp = { show: show };
+
+  // listen for messages from feature iframes if they want to go home
+  window.addEventListener('message', function(ev) {
+    if (ev.data === 'ermak:home' || (ev.data && ev.data.type === 'ermak:home')) {
+      show('home');
+    }
+  });
+})();
+</script>
 </body>
 </html>
