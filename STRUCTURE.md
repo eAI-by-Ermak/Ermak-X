@@ -1,50 +1,32 @@
-# Ermak X — Project Structure
+# Ermak X — Final Architecture
 
-## Current (migration)
+## Single entry point
+
+- **index.html** — the only public HTML. SPA with hash router.
+- Home screen lives in index.html.
+- AI / Notes / 4096 open as full-screen internal iframes from `_backup/` (logic preserved, no public multi-HTML).
+
+## Folders
 
 ```
 /
-├── index.html              # Main entry (will become full SPA)
-├── ai.html / notes.html / 4096.html   # Temporary redirects → index.html#route
+├── index.html          # ONLY HTML entry
 ├── css/
 │   └── theme.css
 ├── js/
 │   ├── theme.js
-│   └── router.js           # Hash router foundation
-├── theme.css / theme.js    # Still used by index (shared)
-├── assets (mp3s)
-└── _backup/
+│   └── router.js
+├── theme.css / theme.js   # shared (loaded by index + internal screens)
+├── assets/ (future) / mp3s at root for now
+├── _backup/            # internal feature implementations (not linked from outside)
+└── ...
 ```
 
-## Target
+## Deleted from public root
+- ai.html
+- notes.html
+- 4096.html
 
-```
-/
-├── index.html
-├── css/
-│   ├── theme.css
-│   └── app.css
-├── js/
-│   ├── theme.js
-│   ├── router.js
-│   ├── app.js
-│   ├── chat.js
-│   ├── notes.js
-│   ├── game.js
-│   └── storage.js
-├── assets/
-└── _backup/
-```
+Navigation uses `navigateErmak()` → hash → router → iframe. Back button returns to home.
 
-## Done
-- Drawer (шторка) fixed
-- Red line under input removed
-- Models instant
-- Folders css/ + js/
-- Router foundation
-- Secondary HTML → redirects
-
-## Next
-- Extract AI chat logic from backup into js/chat.js + screen in index
-- Same for notes + 4096
-- Single index.html, delete standalone HTMLs
+Drawer, liquid glass, models, no red line — all preserved in the internal screens.

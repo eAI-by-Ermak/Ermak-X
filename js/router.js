@@ -1,27 +1,21 @@
-/* Ermak X — simple hash router (SPA foundation) */
+/* Ermak X — SPA hash router */
 (function () {
   function getRoute() {
     var h = (location.hash || '#home').replace(/^#/, '') || 'home';
     return h.split('?')[0];
   }
 
-  function showScreen(name) {
-    // Screens will be added as modules are extracted
-    var screens = document.querySelectorAll('[data-screen]');
-    screens.forEach(function (el) {
-      el.hidden = el.getAttribute('data-screen') !== name;
-    });
-    document.documentElement.setAttribute('data-route', name);
-    window.dispatchEvent(new CustomEvent('ermak:route', { detail: { route: name } }));
+  function emit(route) {
+    document.documentElement.setAttribute('data-route', route);
+    window.dispatchEvent(new CustomEvent('ermak:route', { detail: { route: route } }));
   }
 
   function onHash() {
     var route = getRoute();
-    // For now map known routes; full screens coming from chat.js / notes.js / game.js
     if (['home', 'ai', 'notes', '4096', 'tools', 'profile', 'settings'].indexOf(route) === -1) {
       route = 'home';
     }
-    showScreen(route);
+    emit(route);
   }
 
   window.addEventListener('hashchange', onHash);
@@ -33,7 +27,11 @@
 
   window.ErmakRouter = {
     go: function (name) {
-      location.hash = name;
+      if (location.hash.replace(/^#/, '') === name) {
+        emit(name);
+      } else {
+        location.hash = name;
+      }
     },
     current: getRoute
   };
