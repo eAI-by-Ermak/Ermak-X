@@ -1,34 +1,50 @@
-# Ermak X — Project Structure (migration in progress)
+# Ermak X — Project Structure
 
-Target layout:
+## Current (migration)
 
 ```
 /
-├── index.html          # single entry point (SPA)
+├── index.html              # Main entry (will become full SPA)
+├── ai.html / notes.html / 4096.html   # Temporary redirects → index.html#route
+├── css/
+│   └── theme.css
+├── js/
+│   ├── theme.js
+│   └── router.js           # Hash router foundation
+├── theme.css / theme.js    # Still used by index (shared)
+├── assets (mp3s)
+└── _backup/
+```
+
+## Target
+
+```
+/
+├── index.html
 ├── css/
 │   ├── theme.css
 │   └── app.css
 ├── js/
 │   ├── theme.js
+│   ├── router.js
 │   ├── app.js
 │   ├── chat.js
 │   ├── notes.js
-│   └── game.js
+│   ├── game.js
+│   └── storage.js
 ├── assets/
-│   ├── merge.mp3
-│   ├── gameover.mp3
-│   └── typing.mp3
-├── _backup/            # previous versions
-└── ...
+└── _backup/
 ```
 
-Status:
-- [x] Drawer (шторка) fixed
-- [x] Red line under input removed
-- [x] Models load instantly
-- [x] css/ + js/ folders created
-- [ ] Full extraction of ai/notes/4096 into modules
-- [ ] Single index.html SPA with internal routing
-- [ ] Remove standalone ai.html / notes.html / 4096.html
+## Done
+- Drawer (шторка) fixed
+- Red line under input removed
+- Models instant
+- Folders css/ + js/
+- Router foundation
+- Secondary HTML → redirects
 
-Do not break existing logic while migrating.
+## Next
+- Extract AI chat logic from backup into js/chat.js + screen in index
+- Same for notes + 4096
+- Single index.html, delete standalone HTMLs
