@@ -11,28 +11,25 @@
     var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
-    var bg=r==='light'?'#e6eef7':'#050508';
-    document.documentElement.style.background=bg;
-    document.documentElement.style.colorScheme=r;
+    document.documentElement.style.background=r==='light'?'#e6eef7':'#050508';
   }catch(e){}
 })();
 </script>
 <link rel="stylesheet" href="theme.css">
 <style>
-html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;background:var(--bg,#050508)}
-body.theme-light,html.theme-light{background:#e6eef7!important}
-body.theme-dark,html.theme-dark{background:#050508!important}
-iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent;display:block}
+html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;background:#050508}
+html.theme-light,body.theme-light{background:#e6eef7!important}
+iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}
 #aiFrame,#notesFrame,#gameFrame{display:none;z-index:20}
-#homeFrame{z-index:10}
+#homeFrame{z-index:10;display:block}
 #backBtn{
   display:none;position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;z-index:100;
   width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);
-  background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  cursor:pointer;align-items:center;justify-content:center;padding:0;
+  background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(20px);cursor:pointer;
+  align-items:center;justify-content:center;padding:0;
 }
 #boot{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
-  background:inherit;color:#98989f;font:15px/1.4 -apple-system,system-ui,sans-serif}
+  background:inherit;color:#98989f;font:15px -apple-system,system-ui,sans-serif}
 </style>
 </head>
 <body>
@@ -55,7 +52,22 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:transpa
   var loaded={ai:false,notes:false,game:false};
 
   function cleanUrl(){
-    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  }
+
+  function wireFrame(frame){
+    try{
+      var w=frame.contentWindow;
+      if(!w) return;
+      w.navigateErmak=function(url){
+        var u=String(url||'');
+        if(u.indexOf('ai')>=0) show('ai');
+        else if(u.indexOf('notes')>=0) show('notes');
+        else if(u.indexOf('4096')>=0) show('4096');
+        else show('home');
+      };
+      w.ErmakApp={show:show};
+    }catch(e){}
   }
 
   function show(route){
@@ -71,45 +83,28 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:transpa
     home.style.display='none';
     back.style.display='flex';
     if(route==='ai'){
-      if(!loaded.ai){ ai.src='_backup/ai.html'; loaded.ai=true; }
+      if(!loaded.ai){ai.src='_backup/ai.html';loaded.ai=true;}
       ai.style.display='block';
     } else if(route==='notes'){
-      if(!loaded.notes){ notes.src='_backup/notes.html'; loaded.notes=true; }
+      if(!loaded.notes){notes.src='_backup/notes.html';loaded.notes=true;}
       notes.style.display='block';
     } else if(route==='4096'){
-      if(!loaded.game){ game.src='_backup/4096.html'; loaded.game=true; }
+      if(!loaded.game){game.src='_backup/4096.html';loaded.game=true;}
       game.style.display='block';
     }
   }
 
-  window.ErmakApp={ show: show };
+  window.ErmakApp={show:show};
 
-  home.addEventListener('load', function(){
+  home.addEventListener('load',function(){
     if(boot) boot.style.display='none';
-    try{
-      var w=home.contentWindow;
-      if(!w) return;
-      w.navigateErmak=function(url){
-        var r='home';
-        if(url&&String(url).indexOf('ai')>=0) r='ai';
-        else if(url&&String(url).indexOf('notes')>=0) r='notes';
-        else if(url&&String(url).indexOf('4096')>=0) r='4096';
-        show(r);
-      };
-      w.ErmakApp={ show: show };
-    }catch(e){}
+    wireFrame(home);
   });
+  ai.addEventListener('load',function(){ wireFrame(ai); });
+  notes.addEventListener('load',function(){ wireFrame(notes); });
+  game.addEventListener('load',function(){ wireFrame(game); });
 
   back.onclick=function(){ show('home'); };
-
-  // theme sync from home iframe when ready
-  try{
-    var resolved=sessionStorage.getItem('ermakx_theme_resolved');
-    if(resolved){
-      document.body.classList.add('theme-'+resolved);
-      document.documentElement.classList.add('theme-'+resolved);
-    }
-  }catch(e){}
 })();
 </script>
 <script src="theme.js" defer></script>
