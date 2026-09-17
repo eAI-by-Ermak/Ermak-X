@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#07070a">
+<meta name="theme-color" content="#000000">
 <title>Ermak X</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
 <script>
@@ -12,14 +12,14 @@
     var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
-    document.documentElement.style.background=r==='light'?'#e8eef6':'#07070a';
+    document.documentElement.style.background=r==='light'?'#f2f2f7':'#000000';
   }catch(e){}
 })();
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
-html{background:#e8eef6}html.theme-dark{background:#07070a!important}
+html{background:#f2f2f7}html.theme-dark{background:#000!important}
 body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
 body.theme-dark{
   --bg:#000;--text:#f5f5f7;--text2:#98989f;--surface:rgba(28,10,10,.55);
@@ -96,17 +96,8 @@ body.theme-light{
   .empty{grid-column:1/-1}
 }
 </style>
-<link rel="stylesheet" href="theme.css">
 </head>
 <body class="theme-dark">
-<div class="bg-layer" aria-hidden="true">
-  <div class="bg-base"></div>
-  <div class="bg-grid"></div>
-  <div class="bg-orb a"></div>
-  <div class="bg-orb b"></div>
-  <div class="bg-noise"></div>
-</div>
-
 <button class="home-btn" id="homeBtn" title="Home" aria-label="Home">
   <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
 </button>
@@ -176,10 +167,10 @@ async function loadTheme(){
   document.body.classList.add('theme-'+resolved);
   document.documentElement.classList.remove('theme-dark','theme-light');
   document.documentElement.classList.add('theme-'+resolved);
-  document.documentElement.style.background=resolved==='light'?'#e8eef6':'#07070a';
+  document.documentElement.style.background=resolved==='light'?'#f2f2f7':'#000000';
   try{sessionStorage.setItem('ermakx_theme_resolved',resolved)}catch(e){}
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.content=resolved==='light'?'#e8eef6':'#07070a';
+  if(meta) meta.content=resolved==='light'?'#f2f2f7':'#000000';
 }
 
 async function loadNotes(){
@@ -282,6 +273,5 @@ async function init(){
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
-<script src="theme.js" defer></script>
 </body>
 </html>

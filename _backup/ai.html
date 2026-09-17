@@ -7,14 +7,14 @@
     var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
-    document.documentElement.style.background=r==='light'?'#e8eef6':'#07070a';
+    document.documentElement.style.background=r==='light'?'#f2f2f7':'#000000';
   }catch(e){}
 })();
 </script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#07070a">
+<meta name="theme-color" content="#000000">
 <title>Ermak X</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%231c1c1e' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
@@ -1877,17 +1877,8 @@ button:hover > svg,.branch-nav button:hover svg{animation:uiIconHover .85s ease-
 .edge-fade-t,.edge-fade-b{display:none !important;background:none !important;opacity:0 !important}
 .bottom{background:transparent !important}
 </style>
-<link rel="stylesheet" href="theme.css">
 </head>
 <body class="theme-dark">
-<div class="bg-layer" aria-hidden="true">
-  <div class="bg-base"></div>
-  <div class="bg-grid"></div>
-  <div class="bg-orb a"></div>
-  <div class="bg-orb b"></div>
-  <div class="bg-noise"></div>
-</div>
-
 <div class="app" id="app">
   <div class="edge-fade-t"></div>
   <div class="edge-fade-b"></div>
@@ -2443,10 +2434,10 @@ async function loadTheme(){
   document.body.classList.add('theme-'+resolved);
   document.documentElement.classList.remove('theme-dark','theme-light');
   document.documentElement.classList.add('theme-'+resolved);
-  document.documentElement.style.background=resolved==='light'?'#e8eef6':'#07070a';
+  document.documentElement.style.background=resolved==='light'?'#f2f2f7':'#000000';
   try{sessionStorage.setItem('ermakx_theme_resolved',resolved)}catch(e){}
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.content=resolved==='light'?'#e8eef6':'#07070a';
+  if(meta) meta.content=resolved==='light'?'#f2f2f7':'#000000';
 }
 
 async function loadAgents(){
@@ -4537,7 +4528,7 @@ async function applyAppTheme(){
   document.body.classList.remove('theme-light','theme-dark');
   document.body.classList.add('theme-'+resolved);
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta)meta.content=resolved==='light'?'#e8eef6':'#07070a';
+  if(meta)meta.content=resolved==='light'?'#f2f2f7':'#000000';
 }
 async function init(){
   await tryLogo();
@@ -4578,7 +4569,6 @@ async function init(){
 }
 if(typeof marked==='undefined'){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js';s.onload=init;document.head.appendChild(s)}else init();
 </script>
-<script src="theme.js" defer></script>
 </body>
 </html>
 <style id="final-layout-hotfix">

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#07070a" id="themeColorMeta">
+<meta name="theme-color" content="#000000" id="themeColorMeta">
 <title>Ermak X</title>
 
 <script>
@@ -18,12 +18,12 @@
       resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.classList.add('theme-'+resolved);
-    document.documentElement.style.background = resolved==='light' ? '#e8eef6' : '#07070a';
+    document.documentElement.style.background = resolved==='light' ? '#f2f2f7' : '#000000';
     document.documentElement.style.colorScheme = resolved;
   } catch(e){}
 })();
 </script>
-<style>html{background:var(--bg,#07070a)}html.theme-dark,html.theme-dark body{background:#07070a!important}html.theme-light,html.theme-light body{background:#e8eef6!important}
+<style>html{background:var(--bg,#f2f2f7)}html.theme-dark,html.theme-dark body{background:#000000!important}html.theme-light,html.theme-light body{background:#f2f2f7!important}
 .song-row {
   display: flex; align-items: center; gap: 10px;
   width: 100%; text-align: left;
@@ -1962,7 +1962,6 @@ body.theme-dark .fab path,
 body.theme-dark .fab-logo path{fill:#FFFFFF!important}
 
 </style>
-<link rel="stylesheet" href="theme.css">
 </head>
 <body class="theme-dark">
 <div class="bg-layer" aria-hidden="true">
@@ -2081,20 +2080,22 @@ body.theme-dark .fab-logo path{fill:#FFFFFF!important}
       </div>
       <div class="tools-grid">
         <div class="tool-card" id="game4096Btn">
-          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+          <div class="tool-icon">🎮</div>
           <div class="tool-meta">
             <div class="tool-name">4096</div>
             <div class="tool-desc">Number puzzle game</div>
           </div>
-          <div class="tool-arrow" aria-hidden="true"></div>
+          <div class="tool-arrow">→</div>
         </div>
         <div class="tool-card" id="notesBtn">
-          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M15 3v5h5"/><path d="M8 13h8M8 17h6"/></svg></div>
+          <div class="tool-icon">📝</div>
           <div class="tool-meta">
             <div class="tool-name">Notes</div>
             <div class="tool-desc">Quick notes and ideas</div>
           </div>
-          <div class="tool-arrow" aria-hidden="true"></div>
+          <div class="tool-arrow">→</div>
+        </div>
+          <div class="tool-arrow">→</div>
         </div>
       </div>
     </div>
@@ -2772,7 +2773,7 @@ function applyTheme(theme){
   try { sessionStorage.setItem('ermakx_theme_resolved', resolved); } catch(e){}
   document.documentElement.classList.remove('theme-light','theme-dark');
   document.documentElement.classList.add('theme-'+resolved);
-  document.documentElement.style.background = resolved==='light' ? '#e8eef6' : '#07070a';;
+  document.documentElement.style.background = resolved==='light' ? '#f2f2f7' : '#000000';;
   const meta = document.getElementById('themeColorMeta');
   if(meta) meta.content = resolved === 'light' ? '#f2f2f7' : '#000000';
 }
@@ -3107,6 +3108,5 @@ if(document.readyState === 'complete' || document.readyState === 'interactive') 
 })();
 </script>
 
-<script src="theme.js" defer></script>
 </body>
 </html>
