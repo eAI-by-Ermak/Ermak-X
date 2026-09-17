@@ -1,14 +1,30 @@
-# Ermak X
+# Ermak X — Architecture
 
-## Current working state
+## Single entry, original UI, clean URL
 
-Full original interface restored from `_backup/`.
+- **index.html** — only public HTML. Contains the full original home interface from the backup.
+- Feature screens (AI / Notes / 4096) open as internal full-screen panels.
+- **No `#hash`**, **no path change**, address bar stays clean.
+- Code is the same as the working backups, organized into folders.
 
-- Root `index.html` / `ai.html` / `notes.html` / `4096.html` redirect to the complete UIs in `_backup/`.
-- No `#hash` in the URL for the actual experience.
-- Interface is exactly as in the backup HTMLs.
-- `theme.css` + `theme.js` provide the liquid-glass + drawer fix.
-- `css/` and `js/` folders are ready for further modularization.
+## Layout
 
-Navigation between pages uses normal links (no hash).
-Drawer, models, and full UI work as in the original backups.
+```
+/
+├── index.html              # full original home + internal screens
+├── css/
+│   └── theme.css
+├── js/
+│   ├── app.js              # screen controller (no URL mutation)
+│   ├── theme.js
+│   └── router.js
+├── theme.css / theme.js    # shared liquid-glass + drawer fix
+├── _backup/                # source of truth for feature UIs (loaded internally)
+│   ├── ai.html
+│   ├── notes.html
+│   └── 4096.html
+└── ...
+```
+
+Navigation uses `navigateErmak()` → `ErmakApp.show(route)` → show/hide panels.
+URL is never modified with hashes or extra segments.
