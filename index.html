@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Ermak X — Free AI Chat Assistant with Image Support</title>
-<meta name="description" content="Ermak X is a free, fast AI assistant in the browser. Chat with AI, send images, stream responses, take notes, and play 4096. No registration, no ads, dark and light themes.">
+<title>Ermak X — Free AI Chat Assistant</title>
+<meta name="description" content="Ermak X is a free, fast AI assistant in the browser. Chat, images, notes, and 4096. No registration, no ads.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ermakx-ai.web.app/">
 <meta name="theme-color" content="#050508" id="themeColorMeta">
@@ -13,7 +13,6 @@
 <meta property="og:title" content="Ermak X — Free AI Chat Assistant">
 <meta property="og:url" content="https://ermakx-ai.web.app/">
 <meta property="og:image" content="https://ermakx-ai.web.app/og-image.svg">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff3b30' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Ermak X","url":"https://ermakx-ai.web.app/","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true}</script>
 <script>
@@ -22,33 +21,42 @@
     var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
     var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     document.documentElement.classList.add('theme-'+r);
-    document.documentElement.style.background=r==='light'?'#e6eef7':'#050508';
+    document.documentElement.style.background=r==='light'?'#f2f2f7':'#000000';
     document.documentElement.style.colorScheme=r;
   }catch(e){}
 })();
 </script>
 <link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="css/spa.css">
-<style>
-html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;background:#050508}
-html.theme-light{background:#e6eef7!important}
-#boot{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:10px;background:inherit;color:#98989f;font:500 15px/1.4 system-ui,sans-serif;transition:opacity .4s cubic-bezier(.22,1,.36,1)}
-#boot.is-gone{opacity:0;pointer-events:none}
-#boot .dot{width:8px;height:8px;border-radius:50%;background:#ff3b30;animation:pulse 1s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
-.seo-content{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-</style>
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/ai.css">
+<link rel="stylesheet" href="css/notes.css">
+<link rel="stylesheet" href="css/game-4096.css">
 </head>
-<body>
-<header class="seo-content"><h1>Ermak X — Free AI Chat Assistant</h1><p>Free AI chat, notes, and 4096 in the browser.</p></header>
+<body class="theme-dark">
+<header class="seo-content" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+  <h1>Ermak X — Free AI Chat Assistant</h1>
+  <p>Chat with AI, notes, and 4096. No registration.</p>
+</header>
 <div id="boot"><span class="dot"></span>Ermak X</div>
-<div id="spaVeil"></div>
-<iframe id="frame-home" class="spa-frame is-home is-active" src="home.html" title="Home"></iframe>
-<iframe id="frame-ai" class="spa-frame" src="about:blank" title="AI" allow="clipboard-write"></iframe>
-<iframe id="frame-notes" class="spa-frame" src="about:blank" title="Notes" allow="clipboard-write"></iframe>
-<iframe id="frame-4096" class="spa-frame" src="about:blank" title="4096" allow="clipboard-write"></iframe>
-<noscript><main style="padding:24px;font-family:system-ui;color:#f5f5f7;background:#050508"><h1>Ermak X</h1><p>Enable JavaScript to use the app.</p></main></noscript>
+<div id="spaRoot">
+  <div class="spa-screen is-active" id="screen-home" data-screen="home"></div>
+  <div class="spa-screen" id="screen-ai" data-screen="ai"></div>
+  <div class="spa-screen" id="screen-notes" data-screen="notes"></div>
+  <div class="spa-screen" id="screen-4096" data-screen="4096"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/home-markup.js"></script>
+<script src="js/ai-markup.js"></script>
+<script src="js/notes-markup.js"></script>
+<script src="js/game-markup.js"></script>
+<script src="js/home.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/game-4096.js"></script>
 <script src="theme.js" defer></script>
 </body>
 </html>
