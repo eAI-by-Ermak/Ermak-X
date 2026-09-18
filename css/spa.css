@@ -1,84 +1,13 @@
-/* Ermak X — SPA transitions & performance */
-:root {
-  --spa-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --spa-duration: 0.48s;
-}
-
-.spa-frame {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: scale(0.96) translateY(14px);
-  filter: blur(10px);
-  transition:
-    opacity var(--spa-duration) var(--spa-ease),
-    transform var(--spa-duration) var(--spa-ease),
-    filter var(--spa-duration) var(--spa-ease),
-    visibility 0s linear var(--spa-duration);
-  will-change: auto;
-  contain: strict;
-  z-index: 10;
-}
-
-.spa-frame.is-active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: scale(1) translateY(0);
-  filter: blur(0);
-  transition:
-    opacity var(--spa-duration) var(--spa-ease),
-    transform var(--spa-duration) var(--spa-ease),
-    filter var(--spa-duration) var(--spa-ease),
-    visibility 0s linear 0s;
-  will-change: opacity, transform, filter;
-  z-index: 20;
-}
-
-.spa-frame.is-home.is-active { z-index: 12; }
-
-.spa-frame.is-leaving {
-  opacity: 0;
-  transform: scale(1.03) translateY(-10px);
-  filter: blur(14px);
-  pointer-events: none;
-  z-index: 15;
-}
-
-#spaVeil {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(255, 59, 48, 0.14), transparent 68%),
-    rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(0px) saturate(1.2);
-  -webkit-backdrop-filter: blur(0px) saturate(1.2);
-  transition:
-    opacity 0.32s var(--spa-ease),
-    backdrop-filter 0.32s var(--spa-ease),
-    -webkit-backdrop-filter 0.32s var(--spa-ease);
-}
-
-#spaVeil.is-on {
-  opacity: 1;
-  backdrop-filter: blur(8px) saturate(1.35);
-  -webkit-backdrop-filter: blur(8px) saturate(1.35);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spa-frame,
-  #spaVeil {
-    transition-duration: 0.01ms !important;
-    filter: none !important;
-    transform: none !important;
-  }
-}
+/* Ermak X SPA chrome */
+html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden}
+#boot{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:inherit;color:#98989f;font:500 15px/1.4 system-ui,sans-serif;transition:opacity .35s ease}
+#boot.is-gone{opacity:0;pointer-events:none}
+#boot .dot{width:8px;height:8px;border-radius:50%;background:#ff3b30;animation:bootPulse 1s ease-in-out infinite}
+@keyframes bootPulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
+#spaRoot{position:fixed;inset:0}
+.spa-screen{position:absolute;inset:0;opacity:0;pointer-events:none;transform:scale(.985) translateZ(0);
+  transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1);overflow:hidden;z-index:1}
+.spa-screen.is-active{opacity:1;pointer-events:auto;transform:scale(1);z-index:2}
+.spa-screen.is-leaving{opacity:0;transform:scale(1.02);z-index:3;pointer-events:none}
+.seo-content{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
