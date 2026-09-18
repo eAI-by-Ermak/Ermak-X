@@ -7,52 +7,31 @@
 <meta name="description" content="Ermak X is a free, fast AI assistant in the browser. Chat, images, notes, and 4096. No registration, no ads.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ermakx-ai.web.app/">
-<meta name="theme-color" content="#050508" id="themeColorMeta">
-<meta name="color-scheme" content="dark light">
-<meta property="og:type" content="website">
+<meta name="theme-color" content="#050508">
 <meta property="og:title" content="Ermak X — Free AI Chat Assistant">
 <meta property="og:url" content="https://ermakx-ai.web.app/">
-<meta property="og:image" content="https://ermakx-ai.web.app/og-image.svg">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff3b30' d='M8 6h3.2l4.8 12.5L20.8 6H24v20h-3.2V12.2L16 24h-1.6L9.6 12.2V26H6.4V6z'/%3E%3C/svg%3E">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Ermak X","url":"https://ermakx-ai.web.app/","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true}</script>
-<script>
-(function(){
-  try{
-    var c=null; try{c=sessionStorage.getItem('ermakx_theme_resolved')}catch(e){}
-    var r=c||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-    document.documentElement.classList.add('theme-'+r);
-    document.documentElement.style.background=r==='light'?'#f2f2f7':'#000000';
-    document.documentElement.style.colorScheme=r;
-  }catch(e){}
-})();
-</script>
-<link rel="stylesheet" href="theme.css">
-<link rel="stylesheet" href="css/spa.css">
-<link rel="stylesheet" href="css/home.css">
-<link rel="stylesheet" href="css/ai.css">
-<link rel="stylesheet" href="css/notes.css">
-<link rel="stylesheet" href="css/game-4096.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;background:#050508;color:#f5f5f7;-webkit-font-smoothing:antialiased}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.wrap{width:100%;max-width:380px;text-align:center}
+.logo{font-size:32px;font-weight:700;letter-spacing:-.04em;margin-bottom:6px}
+.logo span{color:#ff3b30}
+.sub{color:#98989f;font-size:15px;margin-bottom:36px;line-height:1.4}
+.card{display:block;width:100%;padding:18px 20px;margin-bottom:12px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f5f5f7;text-decoration:none;font-weight:600;font-size:16px;transition:background .2s,border-color .2s,transform .15s}
+.card:hover{background:rgba(255,59,48,.12);border-color:rgba(255,59,48,.35)}
+.card:active{transform:scale(.98)}
+.card small{display:block;font-weight:400;font-size:13px;color:#98989f;margin-top:4px}
+</style>
 </head>
-<body class="theme-dark">
-<div id="boot"><span class="dot"></span>Ermak X</div>
-<div id="spaRoot">
-  <div class="spa-screen is-active" id="screen-home" data-screen="home"></div>
-  <div class="spa-screen" id="screen-ai" data-screen="ai"></div>
-  <div class="spa-screen" id="screen-notes" data-screen="notes"></div>
-  <div class="spa-screen" id="screen-4096" data-screen="4096"></div>
+<body>
+<div class="wrap">
+  <div class="logo">Ermak <span>X</span></div>
+  <p class="sub">Free AI assistant · Notes · 4096</p>
+  <a class="card" href="ai.html">AI Chat<small>Streaming answers, images, agents</small></a>
+  <a class="card" href="notes.html">Notes<small>Local notes in the browser</small></a>
+  <a class="card" href="4096.html">4096<small>Classic puzzle game</small></a>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="js/app.js"></script>
-<script src="js/home-markup.js"></script>
-<script src="js/ai-markup.js"></script>
-<script src="js/notes-markup.js"></script>
-<script src="js/game-4096-markup.js"></script>
-<script src="js/home.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/notes.js"></script>
-<script src="js/game-4096.js"></script>
-<script src="theme.js" defer></script>
 </body>
 </html>
