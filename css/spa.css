@@ -1,4 +1,3 @@
-/* Ermak X SPA chrome */
 html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden}
 #boot{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;
   background:inherit;color:#98989f;font:500 15px/1.4 system-ui,sans-serif;transition:opacity .35s ease}
@@ -6,8 +5,7 @@ html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden}
 #boot .dot{width:8px;height:8px;border-radius:50%;background:#ff3b30;animation:bootPulse 1s ease-in-out infinite}
 @keyframes bootPulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
 #spaRoot{position:fixed;inset:0}
-.spa-screen{position:absolute;inset:0;opacity:0;pointer-events:none;transform:scale(.985) translateZ(0);
-  transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1);overflow:hidden;z-index:1}
-.spa-screen.is-active{opacity:1;pointer-events:auto;transform:scale(1);z-index:2}
-.spa-screen.is-leaving{opacity:0;transform:scale(1.02);z-index:3;pointer-events:none}
-.seo-content{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.spa-screen{position:absolute;inset:0;opacity:0;pointer-events:none;transform:translateZ(0);
+  transition:opacity .4s cubic-bezier(.22,1,.36,1);overflow:auto;z-index:1;contain:layout style}
+.spa-screen.is-active{opacity:1;pointer-events:auto;z-index:2}
+.spa-screen.is-leaving{opacity:0;z-index:3;pointer-events:none}

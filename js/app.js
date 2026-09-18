@@ -1,17 +1,12 @@
-/* Ermak X — single-page router (no hash, no extra HTML pages) */
+/* Ermak X SPA router — no hash, no extra HTML pages */
 (function () {
   'use strict';
   var SCREENS = ['home', 'ai', 'notes', '4096'];
   var current = 'home';
   var transitioning = false;
-  var DURATION = 420;
+  var DURATION = 400;
 
-  function $(id) { return document.getElementById(id); }
-
-  function el(name) {
-    return $('screen-' + name);
-  }
-
+  function el(name) { return document.getElementById('screen-' + name); }
   function cleanUrl() {
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   }
@@ -49,25 +44,14 @@
   window.ErmakApp = { show: show, navigate: navigate, current: function () { return current; } };
   window.navigateErmak = navigate;
 
-  window.addEventListener('message', function (ev) {
-    if (!ev.data) return;
-    if (ev.data === 'ermak:home' || (ev.data && ev.data.type === 'ermak:home')) show('home');
-    if (ev.data === 'ermak:ai' || (ev.data && ev.data.type === 'ermak:ai')) show('ai');
-    if (ev.data === 'ermak:notes' || (ev.data && ev.data.type === 'ermak:notes')) show('notes');
-    if (ev.data === 'ermak:4096' || (ev.data && ev.data.type === 'ermak:4096')) show('4096');
-  });
-
   function boot() {
-    var b = $('boot');
+    var b = document.getElementById('boot');
     if (b) {
       b.classList.add('is-gone');
       setTimeout(function () { if (b.parentNode) b.remove(); }, 400);
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
