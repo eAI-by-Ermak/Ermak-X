@@ -1,0 +1,29 @@
+name: Assemble ai.html
+on:
+  push:
+    paths:
+      - 'ai.parts/**'
+      - '.github/workflows/assemble-ai.yml'
+  workflow_dispatch:
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Concatenate parts into ai.html
+        run: |
+          cat ai.parts/0 ai.parts/1 ai.parts/2 ai.parts/3 ai.parts/4 > ai.html
+          wc -c ai.html
+      - name: Commit ai.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ai.html
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Assemble ai.html from parts (ermakx-cloudflare-3)"
+            git push
+          fi
